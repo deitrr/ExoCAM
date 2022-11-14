@@ -1490,9 +1490,9 @@ contains
       real(r8) :: day_in_year
       !-----------------------------------------------------------------------c
       dodiavg = .true.
-      !call coszen( calday, dodiavg, clat, clon, ncol, cosza )
-      call get_curr_calday_rotation(frac_day, day_in_year)
-      call coszen( frac_day, dodiavg, clat, clon, ncol, cosza )
+      call coszen( calday, dodiavg, clat, clon, ncol, cosza )
+      !call get_curr_calday_rotation(frac_day, day_in_year)
+      !call coszen( frac_day, dodiavg, clat, clon, ncol, cosza )
 ! TBH:  Loops are not in optimal order for memory access...
       do i=1,ncol
          dicosza = cosza(i)

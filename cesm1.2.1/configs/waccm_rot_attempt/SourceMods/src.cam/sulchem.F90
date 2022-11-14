@@ -1,14 +1,14 @@
 
 module sulchem
 
-   !----------------------------------------------------------------------- 
-   ! Purpose: 
+   !-----------------------------------------------------------------------
+   ! Purpose:
    ! Contains the sulfur cycle chemistry codes.
-   ! 
-   ! Author: 
+   !
+   ! Author:
    ! Chemistry code is from Mary Barth.
    ! Module coded by B. Eaton.
-   !----------------------------------------------------------------------- 
+   !-----------------------------------------------------------------------
 
    use shr_kind_mod, only: r8 => shr_kind_r8
    use ppgrid,       only: pcols, pver
@@ -97,7 +97,7 @@ module sulchem
    real(r8), parameter, dimension(nalb) :: alb =  &! Tabulated albedo = 0.2 and 0.5
       (/ 0.2_r8, 0.5_r8 /)
 
-   real(r8), parameter, dimension(121) :: yield = &! yield of DMS+OH rxn going to SO2 
+   real(r8), parameter, dimension(121) :: yield = &! yield of DMS+OH rxn going to SO2
       (/ 0.76905_r8,  0.76953_r8,  0.77002_r8,  0.77050_r8,  0.77098_r8,  0.77146_r8, &
          0.77195_r8,  0.77243_r8,  0.77291_r8,  0.77340_r8,  0.77388_r8,  0.77436_r8, &
          0.77485_r8,  0.77533_r8,  0.77581_r8,  0.77629_r8,  0.77678_r8,  0.77726_r8, &
@@ -120,7 +120,7 @@ module sulchem
          0.96223_r8,  0.96476_r8,  0.96714_r8,  0.96938_r8,  0.97148_r8,  0.97344_r8, &
          0.97528_r8 /)
 
-   real(r8), parameter, dimension(121) :: dmsrate = &! rate coeff of DMS+OH 
+   real(r8), parameter, dimension(121) :: dmsrate = &! rate coeff of DMS+OH
       (/ 0.21261E-10_r8,0.21112E-10_r8,0.20966E-10_r8,0.20823E-10_r8,0.20683E-10_r8, &
          0.20546E-10_r8,0.20411E-10_r8,0.20280E-10_r8,0.20151E-10_r8,0.20024E-10_r8, &
          0.19900E-10_r8,0.19779E-10_r8,0.19660E-10_r8,0.19543E-10_r8,0.19428E-10_r8, &
@@ -157,12 +157,12 @@ contains
 
     use cam_history,    only: addfld, add_default, phys_decomp
 
-    !----------------------------------------------------------------------- 
-    ! Purpose: 
+    !-----------------------------------------------------------------------
+    ! Purpose:
     ! Initialize sulfur cycle chemistry module.
-    ! 
+    !
     ! Author: B. Eaton
-    !----------------------------------------------------------------------- 
+    !-----------------------------------------------------------------------
 
     implicit none
 
@@ -186,7 +186,7 @@ contains
              go to 11
           endif
        end do
-       jper2(l*nz2) = jper(l*nz) 
+       jper2(l*nz2) = jper(l*nz)
     end do
 
     do i = 1,nza1
@@ -227,14 +227,14 @@ contains
                            o3, h2o23d, oh, no3, ho2, q,  &
                            zm, dtime, calday, clat, clon, ncol, lchnk  )
 
-      !----------------------------------------------------------------------- 
-      ! Purpose: 
-      ! Sulfur chemistry driver separated from chemwdepdr.  The prognostic species 
-      ! are DMS, SO2, SO4, and H2O2.  Needed a chem driver without the wet 
+      !-----------------------------------------------------------------------
+      ! Purpose:
+      ! Sulfur chemistry driver separated from chemwdepdr.  The prognostic species
+      ! are DMS, SO2, SO4, and H2O2.  Needed a chem driver without the wet
       ! deposition for MOZART chemistry
-      ! 
+      !
       ! Author: F Vitt
-      !----------------------------------------------------------------------- 
+      !-----------------------------------------------------------------------
 
       use cam_history, only: outfld
 
@@ -249,7 +249,7 @@ contains
          q(pcols,pver),            &! specific humidity (kg/kg)
          cldwat(pcols,pver),       &! cloud water mixing ratio
          cldf(pcols,pver),         &! total cloud fraction
-         cldv(pcols,pver),         &! cloudy volume which is occupied by rain or cloud water 
+         cldv(pcols,pver),         &! cloudy volume which is occupied by rain or cloud water
          rain(pcols,pver),         &! total precip mixing ratio
          icwmr1(pcols,pver),       &! in cloud water mixing ratio for zhang+hack scheme
          icwmr2(pcols,pver)         ! in cloud water mixing ratio for zhang+hack scheme
@@ -258,7 +258,7 @@ contains
          so2,         &! so2 array
          so4,         &! so4 array
          dms,         &! dms
-         h2o2          ! h2o2 
+         h2o2          ! h2o2
 
       real(r8), dimension(pcols,pver), intent(in) ::&
          o3,          &
@@ -293,14 +293,14 @@ contains
          so4tmp,      &! temporary so4 array
          dmsnew,      &! dms
          dmssnk,      &! total sink of dms
-         so2srcg,     &! total source of so2  
-         so2srcg2,    &! dms + oh source of so2  
-         so4src,      &! total source of so4  
-         so4srcg,     &! gas source of so4  
-         so4srca,     &! aq. source of so4  
-         h2o2src,     &! total source of h2o2  
-         h2o2snkg,    &! gas sink of h2o2  
-         h2o2snka      ! aqueous sink of h2o2  
+         so2srcg,     &! total source of so2
+         so2srcg2,    &! dms + oh source of so2
+         so4src,      &! total source of so4
+         so4srcg,     &! gas source of so4
+         so4srca,     &! aq. source of so4
+         h2o2src,     &! total source of h2o2
+         h2o2snkg,    &! gas sink of h2o2
+         h2o2snka      ! aqueous sink of h2o2
 
       real(r8), dimension(pcols,pver) ::&
          jh2o2         ! photolysis rate of H2O2
@@ -364,16 +364,16 @@ contains
                       ekso2, ekh2o2, ztodt, ind, ncpts, &
                       cldv, icwmr1, icwmr2, ncol )
 
-      !----------------------------------------------------------------------- 
-      ! Purpose: 
+      !-----------------------------------------------------------------------
+      ! Purpose:
       ! Calculate the sources and sinks from the aqueous chemistry:
-      !          S(IV) + H2O2 --> SO4 
-      !          S(IV) + O3   --> SO4 
+      !          S(IV) + H2O2 --> SO4
+      !          S(IV) + O3   --> SO4
       !
       !  where concentrations are concentrations in aqueous phase.
       !
       ! Author: M. Barth
-      !----------------------------------------------------------------------- 
+      !-----------------------------------------------------------------------
 
       implicit none
 
@@ -385,7 +385,7 @@ contains
          ncol                  ! number of atmospheric columns used in chunk
       real(r8), intent(in) ::&
          so2(pcols,pver),     &! so2 array
-         so4(pcols,pver),     &! so4 from aqueous chemistry 
+         so4(pcols,pver),     &! so4 from aqueous chemistry
          h2o2(pcols,pver),    &! h2o2 in kg/kg
          o3(pcols,pver),      &! o3
          tair(pcols,pver),    &! air temperature (K)
@@ -410,8 +410,8 @@ contains
 
       real(r8), intent(out) ::&
          so2new(pcols,pver),  &! so2 array
-         so4new(pcols,pver),  &! so4 from aqueous chemistry 
-         h2o2new(pcols,pver), &! h2o2 from aqueous chemistry 
+         so4new(pcols,pver),  &! so4 from aqueous chemistry
+         h2o2new(pcols,pver), &! h2o2 from aqueous chemistry
          so4srca(pcols,pver), &! so4 production rate from achem
          h2o2snka(pcols,pver)  ! aqueous sink of H2O2
 
@@ -432,7 +432,7 @@ contains
          rwat,       &! rain
          twat         ! total liquid water = cwat + rwat
       real(r8) ::&
-         h2o2rate,   &! rate of S(IV) + H2O2 reaction 
+         h2o2rate,   &! rate of S(IV) + H2O2 reaction
          o3rate,     &! first order rate coefficient for S(IV) + O3
          molarso4,   &! total so4 in units mol SO4/L H2O
          ahso3        ! (molar)**2 concentration of HSO3-
@@ -521,12 +521,12 @@ contains
             rwat(i,k) = qr(i,k)/max(cldv(i,k), 0.01_r8) &
                         *(1._r8-weight) ! aqchem in only the liquid phase
 
-            ! Sum cwat and rwat 
+            ! Sum cwat and rwat
             twat(i,k) = cwat(i,k) + rwat(i,k)
 
             !        if(twat(i,k) .gt. 0.5e-3) then
             !         tc     = tair(i,k) - tmelt
-            !         weight = max(0._r8,min(-tc*0.05,1.0_r8)) 
+            !         weight = max(0._r8,min(-tc*0.05,1.0_r8))
             !         write(iulog,'(a,3i4,5e12.5)') 'TWAT',i,lat,k, twat(i,k), cwat(i,k),
             !     _    rwat(i,k), icwmr1(i,k)*(1.-weight), icwmr2(i,k)*(1.-weight)
             !         write(iulog,*) ' rwat stuff, qr, cldv, cldf ', qr(i,k), cldv(i,k),
@@ -540,8 +540,8 @@ contains
       do k=1,pver
          do i=1,ncol
             so2new(i,k) = so2(i,k)       !keep concentration
-            so4new(i,k) = so4(i,k)       
-            h2o2new(i,k) = h2o2(i,k)       
+            so4new(i,k) = so4(i,k)
+            h2o2new(i,k) = h2o2(i,k)
             so4srca(i,k) = 0._r8
             h2o2snka(i,k) = 0._r8
          end do
@@ -568,18 +568,18 @@ contains
             !        write(iulog,'(3i5,4e12.5,f8.3,a)') ind(i2,k), lat, k, ttwat(i2), &
             !        thion(i2), tso4(i2), tso2(i2), -log10(thion(i2)), '  begin'
          end do
-                    
+
          ! Aqueous chemistry calculations begin here
          do i2=1,ilw
             patm = tprs(i2)/101325._r8
             khs    = ek(1.23_r8,3120._r8,temp(i2))
             khsk1s = khs * ek(1.3e-2_r8,2015._r8,temp(i2))
-            kh12s = khsk1s * ek(6.31e-8_r8,1505._r8,temp(i2)) 
-            kh2o2  = 6.2534e14_r8*exp(-4751._r8/temp(i2)) 
-            molo3 = to3(i2) 
+            kh12s = khsk1s * ek(6.31e-8_r8,1505._r8,temp(i2))
+            kh2o2  = 6.2534e14_r8*exp(-4751._r8/temp(i2))
+            molo3 = to3(i2)
             eko3  = ek(1.15e-2_r8,2560._r8,temp(i2))
-            ko3hs = 4.28e13_r8*exp(-5533._r8/temp(i2)) 
-            ko3so3= 7.436e16_r8*exp(-5280._r8/temp(i2)) 
+            ko3hs = 4.28e13_r8*exp(-5533._r8/temp(i2))
+            ko3so3= 7.436e16_r8*exp(-5280._r8/temp(i2))
 
             !        if(lat .eq. 8 .and. k .eq. 14 .and. i2 .gt. 8) then
             !         write(iulog,'(i3,7e11.4)') i2, tso2(i2), th2o2(i2), thion(i2), &
@@ -606,9 +606,9 @@ contains
                ahso3 = fa1 * patm*molso2
                molarh2o2= tkh2o2(i2)*patm*molh2o2
 
-               h2o2rate = kh2o2 * ahion * ahso3 * molarh2o2/(1._r8 + 13._r8*ahion)  
+               h2o2rate = kh2o2 * ahion * ahso3 * molarh2o2/(1._r8 + 13._r8*ahion)
 
-               ! Convert to mol/(mol-s) 
+               ! Convert to mol/(mol-s)
                molrate = h2o2rate*ttwat(i2)*28.97e-3_r8
                ! check for conservation in kg/(kg-s)
                tmprate = mwa2h2o2*min(molrate/mwa2h2o2, qh2o2/dtchem)
@@ -623,7 +623,7 @@ contains
 
                o3rate  = (ko3hs*a1 + ko3so3*a2) * eko3*molo3 * patm*siv
 
-               ! Convert to mol/(mol-s) 
+               ! Convert to mol/(mol-s)
                molrate = o3rate*ttwat(i2)*28.97e-3_r8
                ! check for conservation in kg/(kg-s)
                tmprate = mwa2so2*min(molrate/mwa2so2, qso2/dtchem)
@@ -664,7 +664,7 @@ contains
 
                ! calculate new ahion, sheff
                molso2 = qso2 * mwa2so2
-               molarso4 = qso4/(max(ttwat(i2), 1.e-30_r8)*96.e-3_r8) 
+               molarso4 = qso4/(max(ttwat(i2), 1.e-30_r8)*96.e-3_r8)
                ahso3 = khsk1s * molso2 * patm
 !++pjr
 ! rewrote this expression so we dont take the sqrt(max(a,1.e-60))
@@ -698,12 +698,12 @@ contains
                                   (1._r8-cldv(ind(i2,k),k))*tso2(i2)
             so4new(ind(i2,k),k) = cldv(ind(i2,k),k)*tso4n(i2) + &
                                   (1._r8-cldv(ind(i2,k),k))*tso4(i2)
-            so4srca(ind(i2,k),k) = cldv(ind(i2,k),k)*tso4src(i2) 
-            h2o2snka(ind(i2,k),k)= cldv(ind(i2,k),k)*th2o2snk(i2) 
+            so4srca(ind(i2,k),k) = cldv(ind(i2,k),k)*tso4src(i2)
+            h2o2snka(ind(i2,k),k)= cldv(ind(i2,k),k)*th2o2snk(i2)
             h2o2new(ind(i2,k),k) = cldv(ind(i2,k),k)*th2o2n(i2) + &
                                    (1._r8-cldv(ind(i2,k),k))*th2o2(i2)
-            hion(ind(i2,k),k) = thion(i2)  
-            ekso2(ind(i2,k),k) = theff(i2)  
+            hion(ind(i2,k),k) = thion(i2)
+            ekso2(ind(i2,k),k) = theff(i2)
             !         write(iulog,'(3i5,4e12.5,f8.3,a)') ind(i2,k), lat, k, ttwat(i2), &
             !         thion(i2), tso4(i2), tso2(i2), -log10(thion(i2)), '  end'
          end do
@@ -731,15 +731,15 @@ contains
    subroutine cldychmini( tair, pres, qc, qr, cldf, &
                           cldv, icwmr1, icwmr2, so2, so4, &
                           ph, hion, ekso2, ekh2o2, ind, &
-                          ncpts, ncol ) 
+                          ncpts, ncol )
 
-      !----------------------------------------------------------------------- 
-      ! Purpose: 
+      !-----------------------------------------------------------------------
+      ! Purpose:
       ! Calculate the pH, solubility constants of SO2 and H2O2, and the
       !  location of the cloudy grid points
-      ! 
+      !
       ! Author: M. Barth
-      !----------------------------------------------------------------------- 
+      !-----------------------------------------------------------------------
 
       implicit none
 
@@ -810,7 +810,7 @@ contains
          do i=1,ncol
 
             ekh2o2(i,k) = ek(7.4e4_r8, 6621._r8, tair(i,k))
-            ekso2(i,k)  = ek(1.23_r8,  3120._r8, tair(i,k)) 
+            ekso2(i,k)  = ek(1.23_r8,  3120._r8, tair(i,k))
             ! Determine cloud water and rain water mixing ratios
             tc     = tair(i,k) - tmelt
             weight = max(0._r8,min(-tc*0.05_r8,1.0_r8)) ! fraction of condensate that is ice
@@ -828,7 +828,7 @@ contains
             rwat(i,k) = qr(i,k)/max(cldv(i,k), 0.00001_r8) &
                         *(1._r8-weight) ! aqchem in only the liquid phase
 
-            ! Sum cwat and rwat 
+            ! Sum cwat and rwat
             twat(i,k) = cwat(i,k) + rwat(i,k)
 
          end do
@@ -868,7 +868,7 @@ contains
             !  Thus, H+ = HSO3- + SO4=  as done in ECHAM
             molso2 = tso2(i2)  * mwa2so2
 
-            molarso4 = tso4(i2)/(max(ttwat(i2), 1.e-30_r8)*96.e-3_r8) 
+            molarso4 = tso4(i2)/(max(ttwat(i2), 1.e-30_r8)*96.e-3_r8)
             ahso3 = ek(1.23_r8,3120._r8,temp(i2)) * &
                     ek(1.3e-2_r8,2015._r8,temp(i2)) * &
                     molso2 * tprs(i2)/101325._r8
@@ -896,8 +896,8 @@ contains
 
 
          do i2=1,ilw
-            hion(ind(i2,k),k) = thion(i2)  
-            ph(ind(i2,k),k) = tph(i2)  
+            hion(ind(i2,k),k) = thion(i2)
+            ph(ind(i2,k),k) = tph(i2)
             ekso2(ind(i2,k),k) = theff(i2)
 
          end do
@@ -910,8 +910,8 @@ contains
 
    subroutine coszen( calday, dodiavg, clat, clon, ncol, coszrs )
 
-      !----------------------------------------------------------------------- 
-      ! Purpose: 
+      !-----------------------------------------------------------------------
+      ! Purpose:
       ! Compute solar distance factor and cosine solar zenith angle usi
       ! day value where a round day (such as 213.0) refers to 0z at
       ! Greenwich longitude.
@@ -919,9 +919,9 @@ contains
       ! Use formulas from Paltridge, G.W. and C.M.R. Platt 1976: Radiative
       ! Processes in Meterology and Climatology, Elsevier Scientific
       ! Publishing Company, New York  p. 57, p. 62,63.
-      ! 
+      !
       ! Author: CCM2
-      !----------------------------------------------------------------------- 
+      !-----------------------------------------------------------------------
 
       implicit none
 
@@ -955,7 +955,7 @@ contains
          frac,    &! Daylight fraction
          arg,     &!
          tsun,    &! temporary term in diurnal averaging
-         coszrsu   ! uniform cosine zenith solar angle 
+         coszrsu   ! uniform cosine zenith solar angle
       !-----------------------------------------------------------------------
 
       theta = 2._r8*pie*calday/dayspy
@@ -971,8 +971,8 @@ contains
          sind = sin(delta)
          cosc = cos(clat(i))
          cosd = cos(delta)
-   
-         ! If using diurnal averaging, then compute the average local cosine solar 
+
+         ! If using diurnal averaging, then compute the average local cosine solar
          ! zenith angle using formulas from paltridge and platt 1976  p. 57, p. 62,63.
          if (dodiavg) then
             arg = -(sinc/cosc)*(sind/cosd)
@@ -991,7 +991,7 @@ contains
             endif
             coszrs(i) = coszrsu
          else                       ! No diurnal averaging
-   
+
             ! Calday is the calender day for Greenwich, including fraction
             ! of day; the fraction of the day represents a local time at
             ! Greenwich; to adjust this to produce a true instantaneous time
@@ -1004,17 +1004,115 @@ contains
 
    end subroutine coszen
 
+   subroutine coszen_rotation( frac_day, calday, dodiavg, clat, clon, ncol, coszrs )
+
+      !-----------------------------------------------------------------------
+      ! Purpose:
+      ! Compute solar distance factor and cosine solar zenith angle usi
+      ! day value where a round day (such as 213.0) refers to 0z at
+      ! Greenwich longitude.
+      !
+      ! Use formulas from Paltridge, G.W. and C.M.R. Platt 1976: Radiative
+      ! Processes in Meterology and Climatology, Elsevier Scientific
+      ! Publishing Company, New York  p. 57, p. 62,63.
+      !
+      ! Author: CCM2
+      !-----------------------------------------------------------------------
+
+      implicit none
+
+      real(r8), intent(in) ::&
+         frac_day,            &! used for rotation not equal to 24 hr
+         calday,              &! Calendar day, including fraction
+         clat(pcols),         &! latitudes (radians)
+         clon(pcols)
+
+      integer, intent(in) ::&
+!         lat(pcols),          &! latitude indices
+!         lon(pcols),          &! longitude indices
+         ncol                  ! number of atmospheric columns used in chunk
+
+      logical, intent(in) ::&
+         dodiavg               ! true => do diurnal averaging
+
+      real(r8), intent(out) ::&
+         coszrs(pcols)        ! Cosine solar zenith angle
+
+      ! Local variables
+      integer :: i     ! Longitude loop index
+      real(r8) ::&
+         phi,     &! Greenwich calendar day + local time + long offset
+         theta,   &! Earth orbit seasonal angle in radians
+         delta,   &! Solar declination angle  in radians
+         sinc,    &! Sine   of latitude
+         cosc,    &! Cosine of latitude
+         sind,    &! Sine   of declination
+         cosd      ! Cosine of declination
+      real(r8) ::&
+         frac,    &! Daylight fraction
+         arg,     &!
+         tsun,    &! temporary term in diurnal averaging
+         coszrsu   ! uniform cosine zenith solar angle
+      !-----------------------------------------------------------------------
+
+      theta = 2._r8*pie*calday/dayspy
+
+      ! Solar declination in radians:
+      delta = .006918_r8 - .399912_r8*cos(theta) + .070257_r8*sin(theta) - &
+              .006758_r8*cos(2._r8*theta) + .000907_r8*sin(2._r8*theta) - &
+              .002697_r8*cos(3._r8*theta) + .001480_r8*sin(3._r8*theta)
+
+      do i=1,ncol
+         ! Compute local cosine solar zenith angle,
+         sinc = sin(clat(i))
+         sind = sin(delta)
+         cosc = cos(clat(i))
+         cosd = cos(delta)
+
+         ! If using diurnal averaging, then compute the average local cosine solar
+         ! zenith angle using formulas from paltridge and platt 1976  p. 57, p. 62,63.
+         if (dodiavg) then  ! RD: how/when is this used? It won't work if rotation rate changes since it is tied to the calendar
+            arg = -(sinc/cosc)*(sind/cosd)
+            if (arg .lt. -1._r8) then
+               frac = 1.0_r8
+            else if (arg .gt. 1._r8) then
+               frac = 0.0_r8
+            else
+               frac = (1._r8/pie)*acos(arg)
+            endif
+            tsun = pie*frac
+            if (tsun .gt. 0._r8) then
+               coszrsu =  sinc*sind + (cosc*cosd*sin(tsun))/tsun
+            else
+               coszrsu = 0.0_r8
+            endif
+            coszrs(i) = coszrsu
+         else                       ! No diurnal averaging
+
+            ! Calday is the calender day for Greenwich, including fraction
+            ! of day; the fraction of the day represents a local time at
+            ! Greenwich; to adjust this to produce a true instantaneous time
+            ! For other longitudes, we must correct for the local time change:
+            ! local time based on the longitude and day of year
+            ! then compute the local cosine solar zenith angle
+	     !coszrs(i) = sinc*sind - cosc*cosd*cos(2._r8*pie*calday + clon(i))
+       coszrs(i) = sinc*sind - cosc*cosd*cos(2._r8*pie*frac_day + clon(i))
+         end if
+      end do
+
+   end subroutine coszen_rotation
+
 !##############################################################################
 
    subroutine dicor( calday, clat, ncol, corr )
 
-      !----------------------------------------------------------------------- 
-      ! Purpose: 
+      !-----------------------------------------------------------------------
+      ! Purpose:
       ! Calculate a correction factor for the ho2 reaction rate to account for
       ! the diurnal variation of ho2
       !
       ! Author: Mary Barth
-      !----------------------------------------------------------------------- 
+      !-----------------------------------------------------------------------
 
       implicit none
 
@@ -1065,7 +1163,7 @@ contains
               .006758_r8*cos(2._r8*theta) + .000907_r8*sin(2._r8*theta) - &
               .002697_r8*cos(3._r8*theta) + .001480_r8*sin(3._r8*theta)
 
-         ! now calculate the solar zenith angle 
+         ! now calculate the solar zenith angle
          ! and some useful quantities for the whole day
          !
          ! Compute local cosine solar zenith angle,
@@ -1076,7 +1174,7 @@ contains
          cosd = cos(delta)
          !
          ! Calday is the calender day for Greenwich, including fraction
-         ! of day; 
+         ! of day;
          ! since all we care about in this calculation is the diurnal variation
          ! of some quantities we just increment calday over one day.
          !
@@ -1117,14 +1215,14 @@ contains
                        jh2o2, so4srcg, dmssnk, so2srcg, so2srcg2, &
                        h2o2src, h2o2snkg, ztodt, ncol )
 
-      !----------------------------------------------------------------------- 
-      ! Purpose: 
+      !-----------------------------------------------------------------------
+      ! Purpose:
       ! Calculate the sources and sinks from the gas chemistry:
       !          DMS + OH     --> a*SO2 + (1-a)*MSA
-      !          DMS + NO3    --> SO2 
+      !          DMS + NO3    --> SO2
       !          SO2 + OH + M --> SO4 + M
-      !          HO2 + HO2    --> H2O2    
-      !          H2O2+ OH     --> HO2 + H2O   
+      !          HO2 + HO2    --> H2O2
+      !          H2O2+ OH     --> HO2 + H2O
       !          H2O2+ hv     --> 2OH
       !
       !  where a is the yield of SO2 from DMS oxidation, MSA is methane sulfonic
@@ -1132,13 +1230,13 @@ contains
       !   is accounted for in the rate coefficient expression.
       !
       ! Author: M. Barth
-      !----------------------------------------------------------------------- 
+      !-----------------------------------------------------------------------
 
       implicit none
 
       real(r8), intent(in) :: &
          so2(pcols,pver),     &! so2 array
-         so4(pcols,pver),     &! so4 from gas chemistry 
+         so4(pcols,pver),     &! so4 from gas chemistry
          dms(pcols,pver),     &! dms
          h2o2(pcols,pver),    &! h2o2
          oh(pcols,pver),      &! oh
@@ -1156,7 +1254,7 @@ contains
          ncol                  ! number of atmospheric columns used in chunk
 
       real(r8), intent(out) ::  &
-         so4new(pcols,pver),    &! so4 from gas chemistry 
+         so4new(pcols,pver),    &! so4 from gas chemistry
          dmsnew(pcols,pver),    &! dms
          h2o2new(pcols,pver),   &! h2o2
          so4srcg(pcols,pver),   &
@@ -1200,7 +1298,7 @@ contains
       !      real(r8) tauh2o2         !relaxation time for H2O2 generation
       !      real(r8) xh2o2           !zonally avgd H2O2 in kg/kg
       !----------------------------------------------------------------------c
-      
+
       !  Assume a 1.5 day relaxation time for H2O2 generation
       !      tauh2o2 = 129600.    !seconds
 
@@ -1227,7 +1325,7 @@ contains
            end do
         end do
       endif
-      
+
       do k=1,pver
          do i=1,ncol
 
@@ -1236,11 +1334,11 @@ contains
             ! determine concentration of air (molec/cm3) = rho(kg/m3)*Na/MWair
             air = pres(i,k)/(287._r8*tair(i,k)) * 1.e-3_r8/28.966_r8 * 6.022e23_r8
             !         air = 0.8*air                   !N2 concentration
- 
+
             ! SO2 + OH rate coefficient:
             rlt = rl300 * (300._r8/tair(i,k))**an
             rht = rh300 * (300._r8/tair(i,k))**am
-            ax = rlt*air/rht 
+            ax = rlt*air/rht
             psi = 1._r8/(1._r8 + (log10(ax))**2)
             bx = rlt*air/(1._r8 + ax)
             so2rate = bx * 0.6_r8**psi             !rate coef. in cm3/molec-s
@@ -1289,7 +1387,7 @@ contains
                            dms(i,k)*(1._r8-exp(-dmsno3*ztodt)) ) / ztodt
             so2new(i,k) = so2new(i,k) + so2srcg(i,k)*ztodt
             so2srcg2(i,k) = 1.032258_r8 / ztodt * &
-                            yield(ik) * dms(i,k)*(1._r8-exp(-dmsrate1*ztodt)) 
+                            yield(ik) * dms(i,k)*(1._r8-exp(-dmsrate1*ztodt))
             !   Note: 1.032258 = 64/62 accounts for different MW of so2 and dms
          end do
       end do
@@ -1320,7 +1418,7 @@ contains
             !  These reactions seem to have the same reaction rate.  Therefore
             !   parameterize this chemistry as doubling the rate of reaction of
             !   H2O2 + OH.
-      
+
             ! h2o2*air*28.966/34. = h2o2 in molec/cm3
 
             h2o2des = 1.7e-12_r8*exp(-200._r8*(1._r8/tair(i,k) - 0.0033557_r8)) * &
@@ -1334,7 +1432,7 @@ contains
 !                           ztodt/(air*mwa2h2o2)
             h2o2new(i,k) = h2o2(i,k) + (h2o2src(i,k) - h2o2snkg(i,k)) * ztodt
 
-            !c        h2o2new(i,k) = min(h2o2(i,k) + 
+            !c        h2o2new(i,k) = min(h2o2(i,k) +
             !c     _      ho2rate * ztodt*(287.*tair(i,k)/pres(i,k))*34./6.022e20,
             !c     _      xh2o2)
 
@@ -1342,7 +1440,7 @@ contains
       end do
 
 !      call t_stopf ('gaschem')
-      
+
       return
    end subroutine gaschem
 
@@ -1350,12 +1448,12 @@ contains
 
    subroutine getj( clat, clon, calday, zm, ncol, jout )
 
-      !----------------------------------------------------------------------- 
-      ! Purpose: 
+      !-----------------------------------------------------------------------
+      ! Purpose:
       ! Set h2o2 photolysis rates.
-      ! 
+      !
       ! Author: M. Barth
-      !----------------------------------------------------------------------- 
+      !-----------------------------------------------------------------------
 
       implicit none
 
@@ -1387,22 +1485,27 @@ contains
       real(r8) ratalb                     !ratio of albedos = (0.3-0.2)/(0.5-0.2)
       real(r8) sumrat                     !sum of the ratios
       real(r8) w1                         !1-sumrat
+
+      real(r8) :: frac_day
+      real(r8) :: day_in_year
       !-----------------------------------------------------------------------c
       dodiavg = .true.
-      call coszen( calday, dodiavg, clat, clon, ncol, cosza )
-! TBH:  Loops are not in optimal order for memory access...  
+      !call coszen( calday, dodiavg, clat, clon, ncol, cosza )
+      call get_curr_calday_rotation(frac_day, day_in_year)
+      call coszen( frac_day, dodiavg, clat, clon, ncol, cosza )
+! TBH:  Loops are not in optimal order for memory access...
       do i=1,ncol
          dicosza = cosza(i)
-   
+
          if( dicosza .lt. 0.02_r8 ) then
             do k=1,pver
                jout(i,k) = 0._r8
             end do
          else
             disecza = min( 1._r8/max( dicosza, 1.e-7_r8 ), 50._r8 )
-      
+
             ! Interpolate data onto current level and zenith angle for alb=0.3
-      
+
             ! zenith angle:
             do is = 1, 8                            !zasec = za in table
                if( zasec(is) .gt. disecza ) go to 5 !secza = za at gridpt
@@ -1410,20 +1513,20 @@ contains
             is = is - 1
 5           is = max( is-1, 1 )
             ratza = (disecza - zasec(is)) * delang(is)
-      
+
             !     albedo -- set to 0.3 (data is for 0.2 and 0.5)
             ratalb = (0.3_r8 - alb(1)) * delalb
-      
+
             sumrat = ratza + ratalb
             w1 = 1._r8 - sumrat
-            
+
             ! Set indices
             ! note albedo index is either 1 or 2; therefore only one jh2o2 will
             ! have ialb=2
-            ind(1) = nz2*(is-1) 
-            ind(2) = nz2*is 
-            ind(3) = nz2*nza + nz2*(is-1) 
-      
+            ind(1) = nz2*(is-1)
+            ind(2) = nz2*is
+            ind(3) = nz2*nza + nz2*(is-1)
+
             do k = 1, pver
                mz = nint( min( 50._r8, zm(i,k)*0.001_r8 + 1._r8 ) )
                psum = w1*jper2(ind(1)+mz) + ratza*jper2(ind(2)+mz) + &
@@ -1438,4 +1541,3 @@ contains
 !##############################################################################
 
 end module sulchem
-

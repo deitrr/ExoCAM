@@ -9,7 +9,7 @@ module ionosphere
 !
 ! Module to compute the relevant physics and electrodynamics needed to improve and
 ! add a realistic simulation of the ionosphere.  Main modules are initialization,
-! ion/electron temperature calculation, ambipolar diffusion, dynamo, .... 
+! ion/electron temperature calculation, ambipolar diffusion, dynamo, ....
 !
 ! Authors: Joe McInerney/Hanli Liu/Art Richmond
 !
@@ -27,7 +27,7 @@ module ionosphere
   implicit none
 
   save
-  
+
   private   ! Make default type private to the module
 !
 ! PUBLIC: interfaces
@@ -44,10 +44,10 @@ module ionosphere
 !
 !
 ! PRIVATE: Rest of the data and interfaces are private to this module
-!   
+!
   real(r8), parameter               :: kboltz_ev = 8.617E-5_r8 ! Boltzmann constant (eV/K)
   real(r8), parameter               :: temax = 7.0E3_r8        ! maximum electron temperature.
-                
+
   integer                           :: ionBot                  ! bottom of ionosphere calculations
   integer                           :: ionBotP                 ! bottom of ionosphere calculations
 
@@ -76,7 +76,7 @@ module ionosphere
     real(r8), dimension(pcols,pverp) :: wei2d    ! vertical z component of ExB drift with added vertical dimension - interfaces
 
     real(r8), dimension(pcols,pverp) :: omegai   ! vertical velocity on interface levels (Pa/s)
- 
+
     real(r8), dimension(pcols,pver)  :: dipMag   ! dip angle for each column (radians)
     real(r8), dimension(pcols,pver)  :: dipMagD  ! dip angle for each column (degrees)
 
@@ -103,18 +103,18 @@ contains
 !==============================================================================
 
   subroutine ionos_init()
-  
+
 !-----------------------------------------------------------------------
 ! Time independent initialization for ionosphere simulation.
 !-----------------------------------------------------------------------
     use cam_history,      only : addfld, add_default, phys_decomp ! Routines and variables for adding fields to history output
     use dycore,           only : get_resolution
     use interpolate_data, only : lininterp
-     
+
     implicit none
 
 !-------------------------------------------------------------------------------
-!  Add history variables for ionosphere 
+!  Add history variables for ionosphere
 !-------------------------------------------------------------------------------
     call addfld ('IONOS_NDENSN2', '1/m3',pver, 'I','N2 Number Density-Ionos', phys_decomp)
     call addfld ('IONOS_NDENSO2', '1/m3',pver, 'I','O2 Number Density-Ionos', phys_decomp)
@@ -159,12 +159,12 @@ contains
     call add_default ('IONI_Eff'      , 1, ' ')
     call add_default ('SOURCE_g4'     , 1, ' ')
     call add_default ('AUR_IRATESUM'  , 1, ' ')
-     
+
    return
 
   end subroutine ionos_init
 
-!==============================================================================     
+!==============================================================================
 
   subroutine ionos_register
 
@@ -173,16 +173,16 @@ contains
 !
 ! Ion production rates pcols,pver,nIonRates,
 !   so firstdim = 1 middledim = pver lastdim = nIonRates.
-! 
+!
 ! pcols dimension and lchnk assumed here
 !
 !-----------------------------------------------------------------------
-     
+
     implicit none
 
     integer :: idx
 
-    ! Electron temperature (global so can write to history files) 
+    ! Electron temperature (global so can write to history files)
     call pbuf_add_field('ElecTemp','global',dtype_r8,(/pcols,pver/),idx)
 
     ! Ion temperature (global so can write to history files)
@@ -195,13 +195,13 @@ contains
   subroutine ionos_intr(state, ptend, pbuf, ztodt)
 
 !-----------------------------------------------------------------------
-! Interface for improved ionosphere simulation 
+! Interface for improved ionosphere simulation
 !-----------------------------------------------------------------------
 !
 !------------------------------Arguments--------------------------------
 
     use time_manager, only : get_nstep,get_step_size
-     
+
     implicit none
 
     type(physics_state), intent(in)    :: state               ! physics state structure
@@ -215,7 +215,7 @@ contains
 !---------------------------Local storage-------------------------------
     integer :: lchnk                              ! chunk identifier
     integer :: ncol                               ! number of atmospheric columns
-                
+
     integer :: ionBot			          ! bottom of ionosphere calculations
 
 !----------------------------------------------------------------
@@ -223,7 +223,7 @@ contains
 !----------------------------------------------------------------
     lchnk = state%lchnk
     ncol  = state%ncol
-    
+
 !------------------------------------------------------------
 !  Initialize data needed in the ionosphere calculations
 !------------------------------------------------------------
@@ -245,7 +245,7 @@ contains
 !===============================================================================
 
   subroutine ionos_datinit(state, lchnk, ncol, pbuf, istate, ionBot)
-  
+
 !------------------------------------------------------------------------------
 ! Time independent initialization for ionosphere simulation called in phys_init
 ! of physpkg module which is called in cam_comp module
@@ -261,17 +261,17 @@ contains
     use cam_control_mod,  only : nsrest        ! Variable to determine if this is an initial run or a restart/branch
     use time_manager,     only : get_nstep                        ! Routine to get current time step
     use physconst,        only : rairv, mbarv                     ! Constituent dependent rair and mbar
-     
+
     implicit none
 
     type(physics_buffer_desc), pointer  :: pbuf(:)             ! physics buffer
     type(physics_state), intent(in)     :: state               ! physics state structure
     type(ionos_state),   intent(inout)  :: istate              ! ionosphere state structure
 
-    integer, intent(in)  :: lchnk   ! Chunk number 
-    integer, intent(in)  :: ncol    ! Number of columns in current chunk 
+    integer, intent(in)  :: lchnk   ! Chunk number
+    integer, intent(in)  :: ncol    ! Number of columns in current chunk
 
-    integer, intent(out) :: ionBot  ! bottom of ionosphere calculations 
+    integer, intent(out) :: ionBot  ! bottom of ionosphere calculations
 
 !---------------------------Local storage-------------------------------
 
@@ -298,7 +298,7 @@ contains
     integer :: iVer       ! Counter for vertical loops
     integer :: iCol       ! Counter for column loops
     integer :: iIonR      ! Counter for ionization rates loops
-   
+
     integer :: indxSP     ! pbuf index for Pedersen Conductivity
     integer :: indxSH     ! pbuf index for Hall Conductivity
 
@@ -309,8 +309,8 @@ contains
     real(r8), dimension(:), pointer     :: we  ! pointer to upward ExB drift in pbuf
 
 
-    real(r8), dimension(pcols,pver) :: tE                ! Pointer to electron temperature in pbuf (K) 
-    real(r8), dimension(pcols,pver) :: ti                ! Pointer to ion temperature in pbuf (K) 
+    real(r8), dimension(pcols,pver) :: tE                ! Pointer to electron temperature in pbuf (K)
+    real(r8), dimension(pcols,pver) :: ti                ! Pointer to ion temperature in pbuf (K)
 
     real(r8), dimension(:,:,:), pointer :: ionRates     ! Pointer to ionization rates for O+,O2+,N+,N2+,NO+ in pbuf (s-1 from modules mo_jeuv and mo_jshort)
 
@@ -338,7 +338,7 @@ contains
     real(r8), dimension(pcols,pver)  :: ue2d  ! horizontal x(eastward) component of ExB drift with added vertical dimension
     real(r8), dimension(pcols,pver)  :: ve2d  ! horizontal y(northward) component of ExB drift with added vertical dimension
     real(r8), dimension(pcols,pver)  :: we2d  ! vertical z component of ExB drift with added vertical dimension - midpoints
- 
+
     real(r8), dimension(pcols,pver)  :: omega         ! vertical velocity at midpoint levels (Pa/s)
     real(r8), dimension(pcols,pver)  :: sourceR       ! R term of source g4 calculation
     real(r8), dimension(pcols,pver)  :: sourceEff     ! Efficiency term of source g4 calculation
@@ -346,9 +346,9 @@ contains
     real(r8), dimension(pcols,pverp) :: wei2d   ! vertical z component of ExB drift with added vertical dimension - interfaces
 
     real(r8), dimension(pcols,pverp) :: omegai  ! vertical velocity on interface levels (Pa/s)
-    
+
     real(r8), dimension(pcols,pverp) :: rairvi        ! Constituent dependent gas constant
- 
+
     real(r8), dimension(pcols,pver)  :: dipMag  ! dip angle for each column (radians)
     real(r8), dimension(pcols,pver)  :: dipMagD ! dip angle for each column (degrees)
 
@@ -362,7 +362,7 @@ contains
     real(r8) :: rmassOp    ! O plus ion molecular weight kg/kmol
     real(r8) :: rmassO2p   ! O2 plus ion molecular weight kg/kmol
     real(r8) :: rmassNOp   ! NO plus ion molecular weight kg/kmol
- 
+
     real(r8), dimension(pcols,pver) :: mmrN2        ! N2 mass mixing ratio kg/kg
     real(r8), dimension(pcols,pver) :: mmrO2    ! O2 mass mixing ratio kg/kg
     real(r8), dimension(pcols,pver) :: mmrO1    ! O mass mixing ratio kg/kg
@@ -396,7 +396,7 @@ contains
     real(r8) :: day_in_year
 
 !--------------------------------------------------------------------------------
-     
+
     tNInt(:,:)        = 0._r8
     zenAngD(:)        = 0._r8
     bNorth3d(:,:)     = 0._r8
@@ -426,17 +426,17 @@ contains
     sourceg4(:,:)     = 0._r8
 
 !------------------------------------------------------------------------------------------------------
-!  Set the bottom of the ionosphere calculations at around 0.01 hectopascals(millibars).  hypm is in 
+!  Set the bottom of the ionosphere calculations at around 0.01 hectopascals(millibars).  hypm is in
 !  Pascals.  Since the model vertical range goes from top down this can be used as the counter of the
-!  number of levels in the range from the top down to the ionBot level. Also, set the interface 
+!  number of levels in the range from the top down to the ionBot level. Also, set the interface
 !  variable ionBotP one more than ionBot
 !------------------------------------------------------------------------------------------------------
     do iVer = 1, pver
-   
+
        if (hypm(iVer) < 50._r8) ionBot = iVer
-   
-    enddo    
-    
+
+    enddo
+
 !--------------------------------------------------------------
 !  Set radians to degrees variable and get zenith angle
 !--------------------------------------------------------------
@@ -445,7 +445,7 @@ contains
 
 !----------------------------------------------------------------
 !  Get latitude and longitude of each column in this chunk
-!----------------------------------------------------------------    
+!----------------------------------------------------------------
     geoLatR(1:ncol) = state%lat(1:ncol)
     geoLonR(1:ncol) = state%lon(1:ncol)
 
@@ -454,12 +454,12 @@ contains
 !-------------------------------------------------------------------------------------------------------
     pMid(1:ncol,1:pver) = state%pmid(1:ncol,1:pver)
     tN(1:ncol,1:pver)   = state%t(1:ncol,1:pver)
-    
+
 !-------------------------------------------------------------------------------------
 !  Calculate neutral temperature on interface levels.  tN vertical dimension is pver
-!-------------------------------------------------------------------------------------   
+!-------------------------------------------------------------------------------------
     do iVer = 2, pver
- 
+
       do iCol = 1, ncol
 
         tNInt(iCol,iVer) = 0.5_r8 * tN(iCol,iVer) + 0.5_r8 * tN(iCol,iVer-1)
@@ -468,28 +468,30 @@ contains
     enddo
 
     do iCol = 1, ncol
-        tNInt(iCol,1) = 1.5_r8 * tNInt(iCol,2) - 0.5_r8 * tNInt(iCol,3) 
+        tNInt(iCol,1) = 1.5_r8 * tNInt(iCol,2) - 0.5_r8 * tNInt(iCol,3)
     enddo
     do iCol = 1, ncol
-        tNInt(iCol,pverp) = 1.5_r8 * tNInt(iCol,pver) - 0.5_r8 * tNInt(iCol,pver-1) 
+        tNInt(iCol,pverp) = 1.5_r8 * tNInt(iCol,pver) - 0.5_r8 * tNInt(iCol,pver-1)
     enddo
-    
+
     istate%tNInt(1:ncol,1:pverp) = tNInt(1:ncol,1:pverp)
 
 !--------------------------------------------------------------
 !  Get zenith angle
-!-------------------------------------------------------------- 
-    calDay = get_curr_calday()    
+!--------------------------------------------------------------
+    calDay = get_curr_calday()
     !call zenith(calDay,geoLatR,geoLonR,cosZenAngR,ncol)
+    write(iulog,*) 'XXX ~zenith calculation in ionosphere~ XXX'
+
     call get_curr_calday_rotation(frac_day, day_in_year)
     call zenith_rotation(frac_day, calDay, geoLatR, geoLonR, cosZenAngR, ncol)
 
     do iCol = 1, ncol
 
       zenAngD(iCol) = ACOS(cosZenAngR(iCol)) * rads2Degs
-    
+
     enddo
- 
+
     istate%cosZenAngR(1:ncol) = cosZenAngR(1:ncol)
     istate%zenAngD(1:ncol) = zenAngD(1:ncol)
 
@@ -502,7 +504,7 @@ contains
 !  Expand magnetic field components in vertical to make 3D, pcols,pver,begchunk:endchunk
 !---------------------------------------------------------------------------------------
     do iVer = 1, pver
-    
+
       do iCol = 1, ncol
 
         bNorth3d(iCol,iVer) = bnorth(iCol,lchnk)
@@ -510,7 +512,7 @@ contains
         bDown3d(iCol,iVer) = bdown(iCol,lchnk)
 
       enddo
-    
+
     enddo
 
     istate%bNorth3d(1:ncol,1:pver) = bNorth3d(1:ncol,1:pver)
@@ -535,7 +537,7 @@ contains
 !  needed below to get vertical drift on interface levels
 !-------------------------------------------------------------------------------
     do iVer = 1, pver
-    
+
       do iCol = 1, ncol
 
         ue2d(iCol,iVer) = ue(iCol)
@@ -543,20 +545,20 @@ contains
         we2d(iCol,iVer) = we(iCol)
 
       enddo
-    
+
     enddo
- 
+
     istate%ue2d(1:ncol,1:pver) = ue2d(1:ncol,1:pver)
     istate%ve2d(1:ncol,1:pver) = ve2d(1:ncol,1:pver)
     istate%we2d(1:ncol,1:pver) = we2d(1:ncol,1:pver)
-   
+
 !-------------------------------------------------------------------------------
 !  Need vertical ExB drift on interface levels
 !-------------------------------------------------------------------------------
     do iVer = 2, pver
       do iCol = 1, ncol
         wei2d(iCol,iVer) = 0.5_r8 * (we2d(iCol,iVer-1) + we2d(iCol,iVer))
-      enddo    
+      enddo
     enddo
     do iCol = 1, ncol
         wei2d(iCol,1) = 1.5_r8 * wei2d(iCol,2) - 0.5_r8 * wei2d(iCol,3)
@@ -564,14 +566,14 @@ contains
     do iCol = 1, ncol
         wei2d(iCol,pverp) = 1.5_r8 * wei2d(iCol,pver) - 0.5_r8 * wei2d(iCol,pver-1)
     enddo
-    
+
     istate%wei2d(1:ncol,1:pverp) = wei2d(1:ncol,1:pverp)
 
 !--------------------------------------------------------------------------------------
 !  Need to get vertical velocity on interface levels handling top level specifically
 !--------------------------------------------------------------------------------------
     omega(1:ncol,1:pver) = state%omega(1:ncol,1:pver)
-    
+
     do iVer = 2, pver
       do iCol = 1, ncol
         omegai(iCol,iVer) = 0.5_r8 * (omega(iCol,iVer-1) + omega(iCol,iVer))
@@ -588,7 +590,7 @@ contains
 
 !------------------------------------------------------------------------
 !  Get constituent dependent gas constant and derive on interface levels
-!------------------------------------------------------------------------        
+!------------------------------------------------------------------------
     do iVer = 2, pver
       do iCol = 1, ncol
         rairvi(iCol,iVer) = 0.5_r8 * rairv(iCol,iVer-1,lchnk) + 0.5_r8 * rairv(iCol,iVer,lchnk)
@@ -606,7 +608,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !  Need to get dip angle from magnetic field components
-!-------------------------------------------------------------------------------     
+!-------------------------------------------------------------------------------
     do iVer = 1, pver
       do iCol = 1, ncol
         dipMag(iCol,iVer) = ATAN(bDown3d(iCol,iVer) / SQRT(bNorth3d(iCol,iVer)**2 + bEast3d(iCol,iVer)**2))
@@ -615,7 +617,7 @@ contains
         dipMagD(iCol,iVer) = dipMag(iCol,iVer) * rads2Degs
       enddo
     enddo
- 
+
     istate%dipMag(1:ncol,1:pver)  = dipMag(1:ncol,1:pver)
     istate%dipMagD(1:ncol,1:pver) = dipMagD(1:ncol,1:pver)
 
@@ -635,9 +637,9 @@ contains
     rmassO2 = cnst_mw(indxO2)
     rmassO1 = cnst_mw(indxO1)
     rmassNO = cnst_mw(indxNO)
-    rmassH  = cnst_mw(indxH) 
-    rmassN1  = cnst_mw(indxN1) 
-    rmassE  = cnst_mw(indxE)        !This is hard-wired in 'iondrag.F90' module 
+    rmassH  = cnst_mw(indxH)
+    rmassN1  = cnst_mw(indxN1)
+    rmassE  = cnst_mw(indxE)        !This is hard-wired in 'iondrag.F90' module
     rmassOP = cnst_mw(indxOp)
     rmassO2P = cnst_mw(indxO2p)
     rmassNOP = cnst_mw(indxNOp)
@@ -652,12 +654,12 @@ contains
     mmrO1(1:ncol,1:pver)  = state%q(1:ncol,1:pver,indxO1)
     mmrNO(1:ncol,1:pver)  = state%q(1:ncol,1:pver,indxNO)
     mmrN1(1:ncol,1:pver)  = state%q(1:ncol,1:pver,indxN1)
-    mmrE(1:ncol,1:pver)   = state%q(1:ncol,1:pver,indxE)                  
+    mmrE(1:ncol,1:pver)   = state%q(1:ncol,1:pver,indxE)
     mmrOp(1:ncol,1:pver)  = state%q(1:ncol,1:pver,indxOp)
     mmrO2p(1:ncol,1:pver) = state%q(1:ncol,1:pver,indxO2p)
-    mmrNOp(1:ncol,1:pver) = state%q(1:ncol,1:pver,indxNOp)    
+    mmrNOp(1:ncol,1:pver) = state%q(1:ncol,1:pver,indxNOp)
 
-    mmrN2(1:ncol,1:pver) = 1._r8 - (mmrO2(1:ncol,1:pver) + mmrO1(1:ncol,1:pver)) 
+    mmrN2(1:ncol,1:pver) = 1._r8 - (mmrO2(1:ncol,1:pver) + mmrO1(1:ncol,1:pver))
     mmrN2(1:ncol,1:pver) = MAX(1.e-20_r8,mmrN2(1:ncol,1:pver))
 
 !-------------------------------------------------------------------------------------------------
@@ -683,10 +685,10 @@ contains
             ndensNOp(iCol,iVer) = mmrNOp(iCol,iVer) * mbarv(iCol,iVer,lchnk) / rmassNOp * &
                                         pMid(iCol,iVer) / (kboltz * tN(iCol,iVer)) * 1.E-06_r8
             ndensN2(iCol,iVer)  = mmrN2(iCol,iVer) * mbarv(iCol,iVer,lchnk) / rmassN2 * &
-                                    pMid(iCol,iVer) / (kboltz * tN(iCol,iVer)) * 1.E-06_r8             
+                                    pMid(iCol,iVer) / (kboltz * tN(iCol,iVer)) * 1.E-06_r8
       enddo
     enddo
- 
+
     istate%ndensO2(1:ncol,1:pver)  = ndensO2(1:ncol,1:pver)
     istate%ndensO1(1:ncol,1:pver)  = ndensO1(1:ncol,1:pver)
     istate%ndensNO(1:ncol,1:pver)  = ndensNO(1:ncol,1:pver)
@@ -711,16 +713,16 @@ contains
     call outfld ('IONOS_NDENSNOP', ndensNOp , pcols, lchnk)
 
 !------------------------------------------------------------------------------------
-! Get ionization rates from physics buffer which were calculated in mo_jeuv and 
+! Get ionization rates from physics buffer which were calculated in mo_jeuv and
 ! mo_jshort modules.  Rates array dimensions are pcols, pver, nIonRates.  Units s-1
 !------------------------------------------------------------------------------------
     indxIR = pbuf_get_index( 'IonRates' )
     call pbuf_get_field(pbuf, indxIR, ionRates, start=(/1,1,1/), kount=(/pcols,pver,nIonRates/))
 
 !----------------------------------------------------------------------------------------------
-!  Need to convert these ionization rates to ion production rates by multiplying number density 
-!  of neutral species appropriate from reactions in mo_jeuv(jeuv) and mo_jshort(jshort)(for NO)  
-!----------------------------------------------------------------------------------------------         
+!  Need to convert these ionization rates to ion production rates by multiplying number density
+!  of neutral species appropriate from reactions in mo_jeuv(jeuv) and mo_jshort(jshort)(for NO)
+!----------------------------------------------------------------------------------------------
     do iVer = 1, pver
       do iCol = 1, ncol
         do iIonR = 1, nIonRates
@@ -731,34 +733,34 @@ contains
           IF (iIonR == 6 .OR. iIonR == 10 .OR. iIonR == 11) &
                                     ionPRates(iCol,iVer,iIonR) = ionRates(iCol,iVer,iIonR) * ndensN2(iCol,iVer)
         enddo
-                                    
+
 !----------------------------------------------
 !  Sum ion production rates all reactions
-!----------------------------------------------   
+!----------------------------------------------
         sumIonPRates(iCol,iVer) = SUM(ionPRates(iCol,iVer,1:11))
       enddo
     enddo
 
     istate%ionPRates(1:ncol,1:pver,1:nIonRates) = ionPRates(1:ncol,1:pver,1:nIonRates)
     istate%sumIonPRates(1:ncol,1:pver) = sumIonPRates(1:ncol,1:pver)
-        
+
 !-------------------------------------------------------------------------------------------
-! Get aurora ion production rate sum from physics buffer which were calculated in mo_aurora 
+! Get aurora ion production rate sum from physics buffer which were calculated in mo_aurora
 ! module.  Rate array dimensions are pcols, pver.  Units s-1 cm-3
 !-------------------------------------------------------------------------------------------
     indxAIPRS = pbuf_get_index( 'AurIPRateSum' )
     call pbuf_get_field(pbuf, indxAIPRS, aurIPRateSum)
 
 !-------------------------------------------------------------------------------------
-! Check latitudes, and set aurora ion production rates for all columns and levels 
-! to zero if all below 32.5 deg since not calculated in mo_aurora for those latitudes 
+! Check latitudes, and set aurora ion production rates for all columns and levels
+! to zero if all below 32.5 deg since not calculated in mo_aurora for those latitudes
 ! (same as criteria in mo_aurora)
 !-------------------------------------------------------------------------------------
     do_aurora(:) = abs( geoLatR(:) ) > pi/6._r8
     if( all( .not. do_aurora(:) ) ) then
        aurIPRateSum(:,:) = 0._r8
     end if
- 
+
 !-------------------------------------------------------------------------------------------------
 !  Calculate electron heating rate which is source in electron/ion temperature derivation
 !-------------------------------------------------------------------------------------------------
@@ -771,7 +773,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !  Calculate g4 source term for electron temperature update
-!-------------------------------------------------------------------------------         
+!-------------------------------------------------------------------------------
         sourceg4(iCol,iVer) = (sumIonPRates(iCol,iVer) + aurIPRateSum(iCol,iVer)) * sourceEff(iCol,iVer)
 
       enddo
@@ -785,7 +787,7 @@ contains
       call outfld ('AUR_IRATESUM'      , aurIPRateSum       , pcols, lchnk)
 
 !----------------------------------------------------------------------------------------------
-! Get Pedersen and Hall Conductivities from physics buffer which were calculated in iondrag 
+! Get Pedersen and Hall Conductivities from physics buffer which were calculated in iondrag
 ! module.  Conductivity array dimensions are pcols, pver
 !-------------------------------------------------------------------------------
     indxSP = pbuf_get_index( 'PedConduct' )
@@ -812,7 +814,7 @@ contains
     use cam_control_mod, only : nsrest        ! Variable to determine if this is an initial run or a restart/branch
     use time_manager,    only : get_nstep                        ! Routine to get current time step
     use physconst,       only : rairv, mbarv                     ! Constituent dependent rair and mbar
-     
+
     implicit none
 
 !------------------------------Arguments--------------------------------
@@ -827,10 +829,10 @@ contains
 
     integer, intent(in) :: lchnk   ! chunk identifier
     integer, intent(in) :: ncol    ! number of atmospheric columns
-    integer, intent(in) :: ionBot  ! bottom of ionosphere calculations 
+    integer, intent(in) :: ionBot  ! bottom of ionosphere calculations
 
 !---------------------------Local storage-------------------------------
-    integer :: ionBotP                                  ! bottom of ionosphere calculations plus one more level 
+    integer :: ionBotP                                  ! bottom of ionosphere calculations plus one more level
 
     integer :: i,k                                      ! loop indexes
     integer :: iVer                                     ! Counter for vertical loops
@@ -864,8 +866,8 @@ contains
     real(r8) :: f1Ted3                                  ! d3 of f1(Te) calculation used to get electron conductivity
     real(r8) :: f1Te
 
-    real(r8), dimension(:,:), pointer   :: tE           ! Pointer to electron temperature in pbuf (K) 
-    real(r8), dimension(:,:), pointer   :: ti           ! Pointer to ion temperature in pbuf (K) 
+    real(r8), dimension(:,:), pointer   :: tE           ! Pointer to electron temperature in pbuf (K)
+    real(r8), dimension(:,:), pointer   :: ti           ! Pointer to ion temperature in pbuf (K)
 
     real(r8), dimension(pcols,pver)  	:: pMid 	! Midpoint pressure (Pa)
     real(r8), dimension(pcols,pver)  	:: tN		! Neutral temperature (K)
@@ -885,28 +887,28 @@ contains
     real(r8), dimension(pcols,pver)  	:: ndensOp	! O plus number density (cm-3)
     real(r8), dimension(pcols,pver)  	:: ndensO2p	! O2 plus ion number density (cm-3)
     real(r8), dimension(pcols,pver)  	:: ndensNOp	! NO plus ion number density  (cm-3)
- 
+
     real(r8), dimension(pcols,pver)  	:: dipMag	! dip angle for each column (radians)
     real(r8), dimension(pcols,pver)  	:: dipMagD	! dip angle for each column (degrees)
 
     real(r8), dimension(ncol)       	:: zenAngD	! zenith angle (degrees)
 
     real(r8), dimension(pcols)       	:: Feub 	! electron heat flux at upper boundary
- 
+
     real(r8), dimension(pcols,pver)  	:: sqrtTE	! Square root of electron temperature
 
     real(r8), dimension(pcols,pver)  	:: sqrtTN	! Square root of electron temperature
- 
+
     real(r8), dimension(pver)        	:: Ke		! electron conductivity
 
     real(r8), dimension(pverp)       	:: Kei  	! electron conductivity interface levels
 
     real(r8), dimension(pcols,pver)  	:: lossc4p	! c4 prime of Lc(eN2) component of loss term
     real(r8), dimension(pcols,pver)  	:: lossceN2	! Lc(eN2) component of loss term equation
- 
+
     real(r8), dimension(pcols,pver)  	:: lossc6p	! c6 prime of Lc(eO2) component of loss term equation
     real(r8), dimension(pcols,pver)  	:: lossceO2	! Lc(eO2) component of loss term equation
- 
+
     real(r8), dimension(pcols,pver)  	:: lossc8p	! c8 prime of Lc(eO) component of loss term equation
     real(r8), dimension(pcols,pver)  	:: lossceO1	! Lc(eO) component of loss term equation
 
@@ -917,22 +919,22 @@ contains
 
     real(r8), dimension(pcols,pver)  	:: lossc11p	! c11 prime of Lc(eO2)v component of loss term equation
     real(r8), dimension(pcols,pver)  	:: lossceO2v	! Lc(eO2)v component of loss term equation
- 
+
     real(r8), dimension(pcols,pver)  	:: lossc12p	! c12 prime of Lc(eO)f component of loss term equation
     real(r8), dimension(pcols,pver)  	:: lossceOf	! Lc(eO)f component of loss term equation
- 
+
     real(r8), dimension(pcols,pver)  	:: lossc14p	! c14 prime of Lc(eO)1D component of loss term equation
     real(r8), dimension(pcols,pver)  	:: losscf2d	! d of f2 of Lc(eO)1D component of loss term equation
     real(r8), dimension(pcols,pver)  	:: losscf2	! f2 of Lc(eO)1D component of loss term equation
     real(r8), dimension(pcols,pver)  	:: losscf3	! f3 of Lc(eO)1D component of loss term equation
     real(r8), dimension(pcols,pver)  	:: lossceO1D	! Lc(eO)1D component of loss term equation
- 
+
     real(r8), dimension(pcols,pver)  	:: lossc15p	! c15 prime of Lc(eN2)Rot component of loss term equation
     real(r8), dimension(pcols,pver)  	:: lossceN2Rot  ! Lc(eN2)Rot component of loss term equation
- 
+
     real(r8), dimension(pcols,pver)  	:: lossc16p	! c16 prime of Lc(eO2)Rot component of loss term equation
     real(r8), dimension(pcols,pver)  	:: lossceO2Rot  ! Lc(eO2)Rot component of loss term equation
- 
+
     real(r8), dimension(pcols,pver)  	:: lossc3p	! c3 prime of Lc(ei) component of loss term equation
     real(r8), dimension(pcols,pver)  	:: losscei	! Lc(ei) component of loss term equation
     real(r8), dimension(pcols,pver)  	:: losscin	! ion-neutral heating coeff.
@@ -946,7 +948,7 @@ contains
 
     real(r8), dimension(pcols,pver)  	:: sourceg4	! g4 source term for electron/ion temperature update
 
- 
+
     real(r8), dimension(pcols,pver)  	:: qjoule	! joule heating
     real(r8), dimension(pcols,pver)  	:: qen  	! electron-neutral heating
     real(r8), dimension(pcols,pver)  	:: qei  	! electron-ion Coulomb heating
@@ -965,10 +967,10 @@ contains
     logical, dimension(pcols)        	:: colConv	! flag for column converging = 1 if converged otherwise = 0
 
     logical                          	:: converged	!Flag for convergence in electron temperature calculation iteration loop
-         
+
 !-----------------------------------------------------------------------------------------------------------------
 
-!--------------------------------------------------------------------------------------------------------- 
+!---------------------------------------------------------------------------------------------------------
 !  Initialize arrays to zero
 !---------------------------------------------------------------------------------------------------------
     pMid(:,:)           = 0._r8
@@ -1018,25 +1020,25 @@ contains
     losscei(:,:)        = 0._r8
     losscin(:,:)        = 0._r8
     lossg3(:,:)         = 0._r8
-    delTEN(:,:)         = 0._r8 
+    delTEN(:,:)         = 0._r8
     delZi(:,:)          = 0._r8
-    delZ(:,:)           = 0._r8 
-    subDiag(:)          = 0._r8         
-    superDiag(:)        = 0._r8        
-    diag(:)             = 0._r8 
-    sourceg4(:,:)       = 0._r8 
+    delZ(:,:)           = 0._r8
+    subDiag(:)          = 0._r8
+    superDiag(:)        = 0._r8
+    diag(:)             = 0._r8
+    sourceg4(:,:)       = 0._r8
     dipMag(:,:)         = 0._r8
     dipMagD(:,:)        = 0._r8
-    rHSInit(:)          = 0._r8 
+    rHSInit(:)          = 0._r8
     rHSH(:)             = 0._r8
-    rHS(:)              = 0._r8 
-    teTemp(:)           = 0._r8 
+    rHS(:)              = 0._r8
+    teTemp(:)           = 0._r8
     qjoule(:,:)         = 0._r8
     qei(:,:)            = 0._r8
     qen(:,:)            = 0._r8
     rho(:,:)            = 0._r8
     colConv(:)          = .false.
-    
+
 !-------------------------------------------
 !  Calculate some commonly used variables
 !-------------------------------------------
@@ -1054,7 +1056,7 @@ contains
     qjoule(1:ncol,1:ionBot) = ptend%s(1:ncol,1:ionBot) * 6.24E15_r8     ! convert from J/kg/s to ev/g/s
 
     pInt(1:ncol,1:pverp)  = state%pint(1:ncol,1:pverp)
-    tNInt(1:ncol,1:pverp)   = istate%tNInt(1:ncol,1:pverp)        
+    tNInt(1:ncol,1:pverp)   = istate%tNInt(1:ncol,1:pverp)
     rairvi(1:ncol,1:pverp)  = istate%rairvi(1:ncol,1:pverp)
 
     sqrtTN(1:ncol,1:pver) = SQRT(tN(1:ncol,1:pver))
@@ -1062,26 +1064,26 @@ contains
 !----------------------------------------------------------------
 !  Get variables needed from the ionosphere state structure
 !----------------------------------------------------------------
-    ndensO2(1:ncol,1:pver)  = istate%ndensO2(1:ncol,1:pver) 
+    ndensO2(1:ncol,1:pver)  = istate%ndensO2(1:ncol,1:pver)
     ndensO1(1:ncol,1:pver)  = istate%ndensO1(1:ncol,1:pver)
-    ndensNO(1:ncol,1:pver)  = istate%ndensNO(1:ncol,1:pver) 
-    ndensN1(1:ncol,1:pver)  = istate%ndensN1(1:ncol,1:pver) 
-    ndensE(1:ncol,1:pver)   = istate%ndensE(1:ncol,1:pver)  
-    ndensOp(1:ncol,1:pver)  = istate%ndensOp(1:ncol,1:pver) 
+    ndensNO(1:ncol,1:pver)  = istate%ndensNO(1:ncol,1:pver)
+    ndensN1(1:ncol,1:pver)  = istate%ndensN1(1:ncol,1:pver)
+    ndensE(1:ncol,1:pver)   = istate%ndensE(1:ncol,1:pver)
+    ndensOp(1:ncol,1:pver)  = istate%ndensOp(1:ncol,1:pver)
     ndensO2p(1:ncol,1:pver) = istate%ndensO2p(1:ncol,1:pver)
     ndensNOp(1:ncol,1:pver) = istate%ndensNOp(1:ncol,1:pver)
-    ndensN2(1:ncol,1:pver)  = istate%ndensN2(1:ncol,1:pver) 
- 
+    ndensN2(1:ncol,1:pver)  = istate%ndensN2(1:ncol,1:pver)
+
     sourceg4(1:ncol,1:pver)  = istate%sourceg4(1:ncol,1:pver)
 
     dipMag(1:ncol,1:pver)   = istate%dipMag(1:ncol,1:pver)
     dipMagD(1:ncol,1:pver)  = istate%dipMagD(1:ncol,1:pver)
 
-    zenAngD(1:ncol)  = istate%zenAngD(1:ncol) 
-      
+    zenAngD(1:ncol)  = istate%zenAngD(1:ncol)
+
 !-------------------------------------------------------------------------------------------------------------------
 !  Get electron temperature from physics buffer and if this is the first time calculated then initialize to neutral
-!  temperature.  nsrest=0 means this is an initial run and nstep=0 means this is the first time step. 
+!  temperature.  nsrest=0 means this is an initial run and nstep=0 means this is the first time step.
 !-------------------------------------------------------------------------------------------------------------------
     indxTe = pbuf_get_index( 'ElecTemp' )
     call pbuf_get_field(pbuf, indxTe, tE)
@@ -1091,11 +1093,11 @@ contains
 
     nstep = get_nstep()
 
-    if(nsrest == 0 .and. nstep == 0) then     
-      
+    if(nsrest == 0 .and. nstep == 0) then
+
       ti(1:ncol,1:pver) = tN(1:ncol,1:pver)
       tE(1:ncol,1:pver) = tN(1:ncol,1:pver)
-    
+
     else
 
       tE(1:ncol,1:pver) = MAX(tN(1:ncol,1:pver),tE(1:ncol,1:pver))
@@ -1112,18 +1114,18 @@ contains
     tE0(1:ncol,1:pver) = tE(1:ncol,1:pver)
 
     wrk2(1:ncol,1:ionBot) =  ndensE(1:ncol,1:ionBot)/wrk1/(SIN(dipMag(1:ncol,1:ionBot)))**2._r8
-    
+
 !-----------------------------------------------------------------------------
-!  Get constant terms needed for loss term g3 for electron temperature update 
+!  Get constant terms needed for loss term g3 for electron temperature update
 !-----------------------------------------------------------------------------
     lossc5  = 1.21E-4_r8
     lossc7  = 3.6E-2_r8
     lossc9  = 5.7E-4_r8
     lossc13 = 7.E-5_r8
-    
+
 !-----------------------------------------------------------------------------
-!  Get terms needed for loss term g3 for electron temperature update which do 
-!  not need to be updated in iteration loop.  
+!  Get terms needed for loss term g3 for electron temperature update which do
+!  not need to be updated in iteration loop.
 !-----------------------------------------------------------------------------
     do iCol = 1, ncol
 
@@ -1153,12 +1155,12 @@ contains
         enddo !iVer loop
 
 !----------------------------------------------------------------------------------
-!  Calculate upper boundary heat flux 
+!  Calculate upper boundary heat flux
 !----------------------------------------------------------------------------------
         if (ABS(dipMagD(iCol,1)) < 60.0_r8) FeDB = 0.5_r8 * &
                                         (1._r8 + SIN(pi * (ABS(dipMagD(iCol,1)) - 30.0_r8) /60.0_r8))
 
-        if (ABS(dipMagD(iCol,1)) >= 60.0_r8) FeDB = 1._r8 
+        if (ABS(dipMagD(iCol,1)) >= 60.0_r8) FeDB = 1._r8
 
         FeD = -4.5E7_r8 * f107 * 0.5_r8 * FeDB
         FeN = .2_r8 * FeD
@@ -1193,32 +1195,32 @@ contains
 !----------------------------------------------------------
         delZi(iCol,1:ionBotP) = delZi(iCol,1:ionBotP)*100._r8
         delZ(iCol,1:ionBot) = delZ(iCol,1:ionBot)*100._r8
-  
+
       endif ! Column not converged
 
     enddo !iCol loop
 
 !-------------------------------------------------------------------------------------------------------
-!  Iterate to calculate new electron temperature. 
+!  Iterate to calculate new electron temperature.
 !  Time splitting is used: first solve the heating/cooling equation, then solve the diffusion equations.
-!  Also, set convergence flag to false and iterate until true or 6 iterations, whichever comes first 
+!  Also, set convergence flag to false and iterate until true or 6 iterations, whichever comes first
 !-------------------------------------------------------------------------------------------------------
-    converged = .false. 
+    converged = .false.
     iter = 0
     do while (.not. converged .and. iter < maxIter)
-    
+
 !--------------------------------------------------------------------------------------------------------
-!  Increment iteration loop counter and save electron temperature from previous iteration for convergence 
+!  Increment iteration loop counter and save electron temperature from previous iteration for convergence
 !  test at end of interation loop.  Also, take square root of electron temperature to be used later
-!--------------------------------------------------------------------------------------------------------        
+!--------------------------------------------------------------------------------------------------------
       iter = iter + 1
-      
+
       tEPrevI(1:ncol,1:ionBot) = tE(1:ncol,1:ionBot)
 
       sqrtTE(1:ncol,1:ionBot) = SQRT(tE(1:ncol,1:ionBot))
 
 !--------------------------------------------------------------------------------------------------------
-!  Loop over columns then vertical levels and call tridiagonal solver for each column to get electron 
+!  Loop over columns then vertical levels and call tridiagonal solver for each column to get electron
 !  temperature
 !--------------------------------------------------------------------------------------------------------
       do iCol = 1, ncol
@@ -1226,18 +1228,18 @@ contains
         if (.not. colConv(iCol)) then
 
           do iVer = 1, ionBot
- 
+
 !-----------------------------------------------------------------------------
-!  Get loss term g3 for electron temperature update.  Need to calculate 
+!  Get loss term g3 for electron temperature update.  Need to calculate
 !  constituent dependent loss terms which make up g3
 !-----------------------------------------------------------------------------
             lossceN2(iCol,iVer) = lossc4p(iCol,iVer) * (1._r8 - lossc5 * tE(iCol,iVer)) * tE(iCol,iVer)
             lossceO2(iCol,iVer) = lossc6p(iCol,iVer) * (1._r8 + lossc7 * sqrtTE(iCol,iVer)) * sqrtTE(iCol,iVer)
             lossceO1(iCol,iVer) = lossc8p(iCol,iVer) * (1._r8 + lossc9 * tE(iCol,iVer)) * sqrtTE(iCol,iVer)
 
-            if (tE(iCol,iVer) < 1000.0_r8) losscA(iCol,iVer) = 5.71E-8_r8 * EXP(-3352.6_r8 / tE(iCol,iVer)) 
+            if (tE(iCol,iVer) < 1000.0_r8) losscA(iCol,iVer) = 5.71E-8_r8 * EXP(-3352.6_r8 / tE(iCol,iVer))
             if (tE(iCol,iVer) >= 1000.0_r8 .AND. tE(iCol,iVer) <= 2000.0_r8) &
-                                          losscA(iCol,iVer) = 2.0E-7_r8 * EXP(-4605.2_r8 / tE(iCol,iVer)) 
+                                          losscA(iCol,iVer) = 2.0E-7_r8 * EXP(-4605.2_r8 / tE(iCol,iVer))
             if (tE(iCol,iVer) > 2000.0_r8) losscA(iCol,iVer) = 2.53E-6_r8 * sqrtTE(iCol,iVer) * &
                                                                           EXP(-17620._r8 / tE(iCol,iVer))
 
@@ -1254,7 +1256,7 @@ contains
                           1.947E-5_r8 * (tE(iCol,iVer) - 1500._r8) * (tE(iCol,iVer) - 4000._r8)
             losscf2(iCol,iVer) = losscf2d(iCol,iVer) * (1._r8 / 3000._r8 - 1._r8 / tE(iCol,iVer))
             losscf3(iCol,iVer) = -22713._r8 * (1._r8 / tN(iCol,iVer) - 1._r8 / tE(iCol,iVer))
-            lossceO1D(iCol,iVer) = lossc14p(iCol,iVer) * EXP(losscf2(iCol,iVer)) * & 
+            lossceO1D(iCol,iVer) = lossc14p(iCol,iVer) * EXP(losscf2(iCol,iVer)) * &
                                                    (1._r8 - EXP(losscf3(iCol,iVer))) / tENDiff(iCol,iVer)
             lossceN2Rot(iCol,iVer) = lossc15p(iCol,iVer) / sqrtTE(iCol,iVer)
             lossceO2Rot(iCol,iVer) = lossc16p(iCol,iVer) / sqrtTE(iCol,iVer)
@@ -1269,28 +1271,28 @@ contains
                           (wrk2(iCol,iVer)/ztodt + (lossg3(iCol,iVer) + losscei(iCol,iVer))/(SIN(dipMag(iCol,iVer)))**2._r8)
 
 !-------------------------------------------------------------------------------------------------------------------
-!  Limit maximum value of electron temperature to be a locally set maximum (temax) and minimum value of electron 
+!  Limit maximum value of electron temperature to be a locally set maximum (temax) and minimum value of electron
 !  temperature to be at least the neutral temperature for a given column and level
-!-------------------------------------------------------------------------------------------------------------------      
+!-------------------------------------------------------------------------------------------------------------------
             tE(iCol,iVer) = min(temax,tE(iCol,iVer))
             tE(iCol,iVer) = max(tN(iCol,iVer),tE(iCol,iVer))
 
           enddo !iVer loop
-	  
+
 	endif ! Column not converged
-	  
+
       enddo ! End of column loop
 
 ! fvitt -- make sqrtTE consistent with new tE
       sqrtTE(1:ncol,1:ionBot) = SQRT(tE(1:ncol,1:ionBot))
 
 !-----------------------------------------------------
-!  Calculate thermal conductivity of electron gas   
+!  Calculate thermal conductivity of electron gas
 !-----------------------------------------------------
       do iCol = 1, ncol
-      
+
         if (.not. colConv(iCol)) then
-      
+
           do iVer = 1, ionBot
 
             f1Ted1 = 2.82E-17_r8 * sqrtTE(iCol,iVer) - 3.41E-21_r8 * tE(iCol,iVer)**1.5_r8
@@ -1352,8 +1354,8 @@ contains
              tE(iCol,iVer) = max(tN(iCol,iVer),tE(iCol,iVer))
           enddo
 !---------------------------------------------------------------------------------------------------------
-!  Calculate ion temperature from electron temperature, ion-neutral and electron-ion loss terms, neutral 
-!  temperature, mass density and joule heating.  Set minimum value to neutral temperature and maximum 
+!  Calculate ion temperature from electron temperature, ion-neutral and electron-ion loss terms, neutral
+!  temperature, mass density and joule heating.  Set minimum value to neutral temperature and maximum
 !  value to electron temperature for each column and vertical level
 !---------------------------------------------------------------------------------------------------------
           do iVer = 1,ionBot
@@ -1362,14 +1364,14 @@ contains
               ti(iCol,iVer) = max(tN(iCol,iVer),ti(iCol,iVer))
               ti(iCol,iVer) = min(tE(iCol,iVer),ti(iCol,iVer))
           enddo
-      
+
 !--------------------------------------------------------------------------------------------------------
 ! Check for convergence which is a change of electron temperature ratio to previous loop for all levels
-! and columns of less than 0.05K.  Had to modify this to do convergence check on each column since 
+! and columns of less than 0.05K.  Had to modify this to do convergence check on each column since
 ! checking all columns in a chunk gives different answers depending on number of tasks and tasks per node.
 !--------------------------------------------------------------------------------------------------------
-          if (ALL(ABS(tE(iCol,1:ionBot) / tEPrevI(iCol,1:ionBot) - 1._r8) < 0.05_r8)) then 
-	
+          if (ALL(ABS(tE(iCol,1:ionBot) / tEPrevI(iCol,1:ionBot) - 1._r8) < 0.05_r8)) then
+
 	    colConv(iCol) = .true.
 
           endif
@@ -1383,7 +1385,7 @@ contains
       if (ALL(colConv(1:ncol))) converged = .true.
 
     enddo ! End of iteration loop
-      
+
     write(iulog,*)'lchnk, Number of tempei iterations, converged flag ', lchnk, iter, converged
 
 !------------------------------------------------------------------
@@ -1406,7 +1408,7 @@ contains
     qen(1:ncol,1:ionBot) = (lossceN2(1:ncol,1:ionBot)+lossceO2(1:ncol,1:ionBot)+lossceO1(1:ncol,1:ionBot)) *  &
                            (tE(1:ncol,1:ionBot)-tN(1:ncol,1:ionBot)) / rho(1:ncol,1:ionBot)
     qei(1:ncol,1:ionBot) = losscei(1:ncol,1:ionBot) * (tE(1:ncol,1:ionBot)-ti(1:ncol,1:ionBot)) / rho(1:ncol,1:ionBot)
-    ptend%s(1:ncol,1:ionBot) = ptend%s(1:ncol,1:ionBot) + (qei(1:ncol,1:ionBot)+qen(1:ncol,1:ionBot))/6.24E15_r8    
+    ptend%s(1:ncol,1:ionBot) = ptend%s(1:ncol,1:ionBot) + (qei(1:ncol,1:ionBot)+qen(1:ncol,1:ionBot))/6.24E15_r8
 
     call outfld ('TE'            , tE           , pcols, lchnk)
     call outfld ('TI'            , ti           , pcols, lchnk)

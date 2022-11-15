@@ -1395,7 +1395,7 @@ subroutine tphysac (ztodt,   cam_in,  &
     ! Chemistry calculation
     write(iulog,*) 'XXX Checking to see if chemistry module is active! XXX'
     if (chem_is_active()) then
-       write(iulog,*) 'XXX Yes, chemistry module is active! XXX'
+       write(iulog,*) 'XXXa Yes, chemistry module is active! XXXa'
        call chem_timestep_tend(state, ptend, cam_in, cam_out, ztodt, &
             pbuf,  fh2o, fsds)
 
@@ -2105,7 +2105,7 @@ subroutine tphysbc (ztodt,               &
        !===================================================
 
        call t_startf('bc_aerosols')
-       write(iulog,*) 'VVV Yes, aerosol scheme does get used... VVV'
+       write(iulog,*) 'VVVa Yes, aerosol scheme does get used... VVVa'
        call aerosol_wet_intr (state, ptend, ztodt, pbuf,  cam_out, dlf)
        call physics_update(state, ptend, ztodt, tend)
 

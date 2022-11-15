@@ -958,7 +958,7 @@ contains
          coszrsu   ! uniform cosine zenith solar angle
       !-----------------------------------------------------------------------
 
-      write(iulog,*) 'VVV coszen function in sulchem is being called! VVV'
+      write(iulog,*) 'VVVf coszen function in sulchem is being called! VVVf'
 
       theta = 2._r8*pie*calday/dayspy
 
@@ -1146,7 +1146,7 @@ contains
 
       !-----------------------------------------------------------------------
       !
-      write(iulog,*) 'VVV dicor function in sulchem is being called! VVV'
+      write(iulog,*) 'VVVg dicor function in sulchem is being called! VVVg'
 
       do ic=1,ncol
 

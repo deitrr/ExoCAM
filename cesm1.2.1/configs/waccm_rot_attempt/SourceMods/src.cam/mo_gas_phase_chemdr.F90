@@ -1,5 +1,5 @@
 module mo_gas_phase_chemdr
-  
+
   use shr_kind_mod,     only : r8 => shr_kind_r8
   use shr_const_mod,    only : pi => shr_const_pi
   use constituents,     only : pcnst
@@ -21,7 +21,7 @@ module mo_gas_phase_chemdr
   save
 
   private
-  public :: gas_phase_chemdr, gas_phase_chemdr_inti 
+  public :: gas_phase_chemdr, gas_phase_chemdr_inti
   public :: map2chm
 
   integer :: map2chm(pcnst) = 0           ! index map to/from chemistry/constituents list
@@ -67,7 +67,7 @@ contains
     character(len=3)  :: string
     integer           :: n, m
     logical           :: history_aerosol      ! Output the MAM aerosol tendencies
-    character(len=2)  :: unit_basename  ! Units 'kg' or '1' 
+    character(len=2)  :: unit_basename  ! Units 'kg' or '1'
 
     !-----------------------------------------------------------------------
 
@@ -100,21 +100,21 @@ contains
     dst_ndx = get_spc_ndx( dust_names(1) )
     synoz_ndx = get_extfrc_ndx( 'SYNOZ' )
     call cnst_get_ind( 'CLDICE', cldice_ndx )
- 
+
     call phys_getopts( history_aerosol_out = history_aerosol, prog_modal_aero_out=prog_modal_aero )
     do m = 1,gas_pcnst
-       call cnst_get_ind(solsym(m), n, abort=.false. ) 
+       call cnst_get_ind(solsym(m), n, abort=.false. )
 
        if ( n > 0 ) then
 
           if (sflxnam(n)(3:5) == 'num') then  ! name is in the form of "SF****"
              unit_basename = ' 1'
           else
-             unit_basename = 'kg'  
+             unit_basename = 'kg'
           endif
 
           call addfld (sflxnam(n),  unit_basename//'/m2/s',1,    'A',trim(solsym(m))//' surface flux',phys_decomp)
-          if ( history_aerosol ) then 
+          if ( history_aerosol ) then
              call add_default( sflxnam(n), 1, ' ' )
           endif
        endif
@@ -122,16 +122,16 @@ contains
 #if (defined MODAL_AERO)
 
        if  ( solsym(m)(1:3) == 'num') then
-          unit_basename = ' 1'  ! Units 'kg' or '1' 
+          unit_basename = ' 1'  ! Units 'kg' or '1'
        else
-          unit_basename = 'kg'  ! Units 'kg' or '1' 
+          unit_basename = 'kg'  ! Units 'kg' or '1'
        end if
 
        call addfld( 'GS_'//trim(solsym(m)), unit_basename//'/m2/s ',1,  'A', &
                     trim(solsym(m))//' gas chemistry/wet removal (for gas species)', phys_decomp)
        call addfld( 'AQ_'//trim(solsym(m)), unit_basename//'/m2/s ',1,  'A', &
                     trim(solsym(m))//' aqueous chemistry (for gas species)', phys_decomp)
-       if ( history_aerosol ) then 
+       if ( history_aerosol ) then
           call add_default( 'GS_'//trim(solsym(m)), 1, ' ')
           call add_default( 'AQ_'//trim(solsym(m)), 1, ' ')
        endif
@@ -176,7 +176,7 @@ contains
     call addfld( 'DTANT',   ' ',  1, 'I','photolysis diagnostic NH4SO4 OD', phys_decomp )
     call addfld( 'DTSAL',   ' ',  1, 'I','photolysis diagnostic salt OD', phys_decomp )
     call addfld( 'DTDUST',  ' ',  1, 'I','photolysis diagnostic dust OD', phys_decomp )
-    call addfld( 'DTTOTAL', ' ',  1, 'I','photolysis diagnostic total aerosol OD', phys_decomp )   
+    call addfld( 'DTTOTAL', ' ',  1, 'I','photolysis diagnostic total aerosol OD', phys_decomp )
     call addfld( 'FRACDAY', ' ',  1, 'I','photolysis diagnostic fraction of day', phys_decomp )
 
     call addfld( 'QDSAD', '/s ', pver, 'I', 'water vapor sad delta', phys_decomp )
@@ -226,7 +226,7 @@ contains
     if (carma_do_hetchem) ndx_sadsulf= pbuf_get_index('SADSULF')
 
 
-#if ( defined MODAL_AERO )                    
+#if ( defined MODAL_AERO )
     ndx_dgnum      = pbuf_get_index('DGNUM')
     ndx_dgnumwet   = pbuf_get_index('DGNUMWET')
     ndx_wetdens_ap = pbuf_get_index('WETDENS_AP')
@@ -356,7 +356,7 @@ contains
     real(r8),       intent(in)    :: precc(pcols)                   !
     real(r8),       intent(in)    :: precl(pcols)                   !
     real(r8),       intent(in)    :: snowhland(pcols)               !
-    logical,        intent(in)    :: ghg_chem 
+    logical,        intent(in)    :: ghg_chem
     integer,  intent(in)          :: latmapback(pcols)
     character(len=*), intent(in)  :: chem_name
     real(r8),       intent(out)   :: drydepflx(pcols,pcnst)         ! dry deposition flux (kg/m^2/s)
@@ -423,7 +423,7 @@ contains
     real(r8) :: satq(ncol,pver)                            ! wrk array for relative humidity
 
     integer                   :: j,wd_index
-    character(len=32)         :: wd_name, depvel_name 
+    character(len=32)         :: wd_name, depvel_name
     real(r8), dimension(ncol) :: wrk_wd, noy_wk, sox_wk, nhx_wk
     integer                   ::  ltrop_sol(pcols)                 ! tropopause vertical index used in chem solvers
     real(r8)                  ::  strato_sad(pcols,pver)           ! stratospheric SAD (cm2/cm3)
@@ -480,9 +480,9 @@ contains
     reaction_rates(:,:,:) = nan
 
     delt_inverse = 1._r8 / delt
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !        ... Get chunck latitudes and longitudes
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call get_lat_all_p( lchnk, ncol, latndx )
     call get_lon_all_p( lchnk, ncol, lonndx )
     call get_rlat_all_p( lchnk, ncol, rlats )
@@ -519,11 +519,13 @@ contains
 #endif
 
     !
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !        ... Calculate cosine of zenith angle
     !            then cast back to angle (radians)
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !call zenith( calday, rlats, rlons, zen_angle, ncol )
+    write(iulog,*) 'XXXc zenith calc inside gas_phase_chemdr XXXc'
+
     call get_curr_calday_rotation(frac_day, day_in_year)
     call zenith_rotation(frac_day, calday, rlats, rlons, zen_angle, ncol)
     zen_angle(:) = acos( zen_angle(:) )
@@ -531,10 +533,10 @@ contains
     sza(:) = zen_angle(:) * rad2deg
     call outfld( 'SZA',   sza,    ncol, lchnk )
 
-    !-----------------------------------------------------------------------      
-    !        ... Xform geopotential height from m to km 
+    !-----------------------------------------------------------------------
+    !        ... Xform geopotential height from m to km
     !            and pressure from Pa to mb
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     zsurf(:ncol) = rga * phis(:ncol)
     do k = 1,pver
        zintr(:ncol,k) = m2km * zi(:ncol,k)
@@ -546,9 +548,9 @@ contains
     zint(:ncol,pver+1) = m2km * (zi(:ncol,pver+1) + zsurf(:ncol))
     zintr(:ncol,pver+1)= m2km *  zi(:ncol,pver+1)
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !        ... map incoming concentrations to working array
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     do m = 1,pcnst
        n = map2chm(m)
        if( n > 0 ) then
@@ -559,14 +561,14 @@ contains
 
     call get_short_lived_species( mmr, lchnk, ncol, pbuf )
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !        ... Set atmosphere mean mass
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call set_mean_mass( ncol, mmr, mbar )
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !        ... Xform from mmr to vmr
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call mmr2vmr( mmr, vmr, mbar, ncol )
 
 #if (defined MODAL_AERO)
@@ -574,43 +576,43 @@ contains
 #endif
 
     if (h2o_ndx>0) then
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        !        ... store water vapor in wrk variable
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        qh2o(:ncol,:) = mmr(:ncol,:,h2o_ndx)
        h2ovmr(:ncol,:) = vmr(:ncol,:,h2o_ndx)
     else
        qh2o(:ncol,:) = q(:ncol,:,1)
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        !        ... Xform water vapor from mmr to vmr and set upper bndy values
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        call h2o_to_vmr( q(:,:,1), h2ovmr, mbar, ncol )
 
        call set_fstrat_h2o( h2ovmr, pmid, troplev, calday, ncol, lchnk )
 
     endif
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !        ... force ion/electron balance
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call charge_balance( ncol, vmr )
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !        ... Set the "invariants"
-    !-----------------------------------------------------------------------  
+    !-----------------------------------------------------------------------
     call setinv( invariants, tfld, h2ovmr, vmr, pmid, ncol, lchnk, pbuf )
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !        ... interpolate SAGEII data for surface area
     !-----------------------------------------------------------------------
     strato_sad(:,:) = 0.0_r8
     sad_sage(:,:) = 0.0_r8
     call strato_sad_set( pmid, sad_sage, ncol, lchnk)
 
-    if (carma_do_hetchem) then 
-    !-----------------------------------------------------------------------      
+    if (carma_do_hetchem) then
+    !-----------------------------------------------------------------------
     !        ... use CARMA sulfate bins for surface area
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
       call pbuf_get_field(pbuf, ndx_sadsulf, sadsulf_ptr)
       strato_sad(:ncol,:pver)=sadsulf_ptr(:ncol,:pver)
     else
@@ -626,12 +628,12 @@ contains
             endif
          end do
       end do
-    end if  
+    end if
 
     if ( has_strato_chem ) then
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        !        ... initialize condensed and gas phases; all hno3 to gas
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        do k = 1,pver
           hno3_gas(:,k)   = vmr(:,k,hno3_ndx)
           h2o_gas(:,k)    = h2ovmr(:,k)
@@ -645,9 +647,9 @@ contains
        end do
        call mmr2vmri( cldice, h2o_cond, mbar, cnst_mw(cldice_ndx), ncol )
 
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        !        ... call SAD routine
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        call sad_strat_calc( lchnk, invariants(:ncol,:,indexm), pmb, tfld, hno3_gas, &
             hno3_cond, h2o_gas, h2o_cond, strato_sad(:ncol,:), radius_strat, &
             sad_strat, ncol, pbuf )
@@ -667,23 +669,23 @@ contains
        call outfld( 'RAD_LNAT', radius_strat(:,:,2), ncol, lchnk )
        call outfld( 'RAD_ICE', radius_strat(:,:,3), ncol, lchnk )
 
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        !        ... call aerosol reaction rates
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        call ratecon_sfstrat( invariants(:,:,indexm), pmid, tfld, &
             radius_strat(:,:,1), sad_strat(:,:,1), sad_strat(:,:,2), &
             sad_strat(:,:,3), h2ovmr, vmr, reaction_rates, ncol )
 
     endif
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !        ... Set the column densities at the upper boundary
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call set_ub_col( col_delta, vmr, invariants, pint(:,1), pdel, ncol, lchnk)
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !       ...  Set rates for "tabular" and user specified reactions
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call setrxt( reaction_rates, tfld, invariants(1,1,indexm), ncol )
 
     sulfate(:,:) = 0._r8
@@ -748,15 +750,15 @@ contains
 
     !-----------------------------------------------------------------------
     !        ... Compute the photolysis rates at time = t(n+1)
-    !-----------------------------------------------------------------------      
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------
     !     	... Set the column densities
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call setcol( col_delta, col_dens, vmr, pdel,  ncol )
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !     	... Calculate the photodissociation rates
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
 
     esfact = 1._r8
     call shr_orb_decl( calday, eccen, mvelpp, lambm0, obliqr  , &
@@ -766,7 +768,7 @@ contains
     if ( xactive_prates ) then
        if ( dst_ndx > 0 ) then
           dust_vmr(:ncol,:,:) = vmr(:ncol,:,dst_ndx:dst_ndx+ndst-1)
-       else 
+       else
           dust_vmr(:ncol,:,:) = 0._r8
        endif
        !-----------------------------------------------------------------
@@ -801,15 +803,15 @@ contains
        call outfld( tag_names(i), reaction_rates(:ncol,:,rxt_tag_map(i)), ncol, lchnk )
     enddo
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !     	... Adjust the photodissociation rates
-    !-----------------------------------------------------------------------  
+    !-----------------------------------------------------------------------
     call O1D_to_2OH_adj( reaction_rates, invariants, invariants(:,:,indexm), ncol, tfld )
     call phtadj( reaction_rates, invariants, invariants(:,:,indexm), ncol )
 
     !-----------------------------------------------------------------------
     !        ... Compute the extraneous frcing at time = t(n+1)
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     if ( o2_ndx > 0 .and. o_ndx > 0 ) then
        do k = 1,pver
           o2mmr(:ncol,k) = mmr(:ncol,k,o2_ndx)
@@ -818,7 +820,7 @@ contains
     endif
     !-----------------------------------------------------------------------
     !        ... Compute the extraneous frcing at time = t(n+1)
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call setext( extfrc, zint, zintr, cldtop, &
                  zmid, lchnk, tfld, o2mmr, ommr, &
                  pmid, mbar, rlats, calday, ncol, rlons, pbuf )
@@ -834,7 +836,7 @@ contains
 
     !-----------------------------------------------------------------------
     !        ... Form the washout rates
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     if ( do_neu_wetdep ) then
       het_rates = 0._r8
     else
@@ -1018,11 +1020,11 @@ contains
        call outfld( 'QDCHEM',   wrk(:ncol,:),         ncol, lchnk )
        call outfld( 'HNO3_GAS', vmr(:ncol,:,hno3_ndx), ncol ,lchnk )
 
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        !         ... aerosol settling
        !             first settle hno3(2) using radius ice
        !             secnd settle hno3(3) using radius large nat
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        wrk(:,:) = vmr(:,:,h2o_ndx)
 #ifdef ALT_SETTL
        where( h2o_cond(:,:) > 0._r8 )
@@ -1045,12 +1047,12 @@ contains
             hno3_cond(1,1,2), radius_strat(1,1,2), ncol, lchnk, 2 )
 #endif
 
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        !	... reform total hno3 = gas + all condensed
-       !-----------------------------------------------------------------------      
+       !-----------------------------------------------------------------------
        do k = 1,pver
           vmr(:,k,hno3_ndx) = vmr(:,k,hno3_ndx) + hno3_cond(:,k,1) &
-               + hno3_cond(:,k,2) 
+               + hno3_cond(:,k,2)
        end do
        call outfld( 'HNO3_STS', hno3_cond(:ncol,:,1), ncol ,lchnk )
        call outfld( 'HNO3_NAT', hno3_cond(:ncol,:,2), ncol ,lchnk )
@@ -1066,28 +1068,28 @@ contains
        call lin_strat_chem_solve( ncol, lchnk, vmr(:,:,o3_ndx), col_dens(:,:,1), tfld, zen_angle, pmid, delt, rlats, troplev )
     end if
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !         ... Check for negative values and reset to zero
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call negtrc( 'After chemistry ', vmr, ncol )
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !         ... Set upper boundary mmr values
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call set_fstrat_vals( vmr, pmid, pint, troplev, calday, ncol,lchnk )
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !         ... Set fixed lower boundary mmr values
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call flbc_set( vmr, ncol, lchnk, map2chm )
 
     if ( ghg_chem ) then
        call ghg_chem_set_flbc( vmr, ncol )
     endif
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !         ... Xform from vmr to mmr
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call vmr2mmr( vmr, mmr_tend, mbar, ncol )
 
 #ifdef MODAL_AERO
@@ -1097,10 +1099,10 @@ contains
 
     call set_short_lived_species( mmr_tend, lchnk, ncol, pbuf )
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !         ... Form the tendencies
-    !----------------------------------------------------------------------- 
-    do m = 1,gas_pcnst 
+    !-----------------------------------------------------------------------
+    do m = 1,gas_pcnst
        mmr_new(:ncol,:,m) = mmr_tend(:ncol,:,m)
        mmr_tend(:ncol,:,m) = (mmr_tend(:ncol,:,m) - mmr(:ncol,:,m))*delt_inverse
     enddo
@@ -1108,13 +1110,13 @@ contains
     do m = 1,pcnst
        n = map2chm(m)
        if( n > 0 ) then
-          qtend(:ncol,:,m) = qtend(:ncol,:,m) + mmr_tend(:ncol,:,n) 
+          qtend(:ncol,:,m) = qtend(:ncol,:,m) + mmr_tend(:ncol,:,n)
        end if
     end do
 
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     !        ... Set surface emissions
-    !-----------------------------------------------------------------------      
+    !-----------------------------------------------------------------------
     call set_srf_emissions( rlats(:), rlons(:), lchnk, sflx(:,:), ncol )
     do m = 1,pcnst
        n = map2chm(m)

@@ -909,7 +909,6 @@ contains
 !##############################################################################
 
    subroutine coszen( calday, dodiavg, clat, clon, ncol, coszrs )
-     write(iulog,*) 'VVV coszen function in sulchem is being called! VVV'
 
       !-----------------------------------------------------------------------
       ! Purpose:
@@ -958,6 +957,8 @@ contains
          tsun,    &! temporary term in diurnal averaging
          coszrsu   ! uniform cosine zenith solar angle
       !-----------------------------------------------------------------------
+
+      write(iulog,*) 'VVV coszen function in sulchem is being called! VVV'
 
       theta = 2._r8*pie*calday/dayspy
 
@@ -1106,7 +1107,6 @@ contains
 !##############################################################################
 
    subroutine dicor( calday, clat, ncol, corr )
-     write(iulog,*) 'VVV dicor function in sulchem is being called! VVV'
 
       !-----------------------------------------------------------------------
       ! Purpose:
@@ -1146,6 +1146,7 @@ contains
 
       !-----------------------------------------------------------------------
       !
+      write(iulog,*) 'VVV dicor function in sulchem is being called! VVV'
 
       do ic=1,ncol
 

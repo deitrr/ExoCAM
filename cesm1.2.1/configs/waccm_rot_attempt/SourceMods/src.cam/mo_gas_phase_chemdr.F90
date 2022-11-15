@@ -13,6 +13,8 @@ module mo_gas_phase_chemdr
   use spmd_utils,       only : iam
   use phys_control,     only : phys_getopts
   use carma_flags_mod,  only : carma_do_hetchem
+  use cam_logfile,    only : iulog                        ! Output unit for run.out file
+
 #ifdef MODAL_AERO
   use modal_aero_data,  only : ntot_amode
 #endif

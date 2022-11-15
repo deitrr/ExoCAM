@@ -227,6 +227,8 @@ contains
 !------------------------------------------------------------
 !  Initialize data needed in the ionosphere calculations
 !------------------------------------------------------------
+    write(iulog,*) 'ZZZa about to call ionos_datinit ZZZa'
+
     call ionos_datinit(state, lchnk, ncol, pbuf, istate, ionBot)
 
 !-------------------------------
@@ -481,7 +483,7 @@ contains
 !--------------------------------------------------------------
     calDay = get_curr_calday()
     !call zenith(calDay,geoLatR,geoLonR,cosZenAngR,ncol)
-    write(iulog,*) 'XXX ~zenith calculation in ionosphere~ XXX'
+    write(iulog,*) 'ZZZb zenith calculation in ionosphere ZZZb'
 
     call get_curr_calday_rotation(frac_day, day_in_year)
     call zenith_rotation(frac_day, calDay, geoLatR, geoLonR, cosZenAngR, ncol)

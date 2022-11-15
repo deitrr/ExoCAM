@@ -229,7 +229,7 @@
 !-----------------------------------------------------------------------
       calday = get_curr_calday()
       !call zenith( calday, rlats, rlons, zen_angle, ncol )
-      write(iulog,*) 'XXX ~zenith calculation in mo_waccm_hrates~ XXX'
+      write(iulog,*) 'YYYa zenith calculation in mo_waccm_hrates YYYa'
 
       call get_curr_calday_rotation(frac_day, day_in_year)
       call zenith_rotation( frac_day, calday, rlats, rlons, zen_angle, ncol )

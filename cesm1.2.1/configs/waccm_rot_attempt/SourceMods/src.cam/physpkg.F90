@@ -1518,7 +1518,9 @@ subroutine tphysac (ztodt,   cam_in,  &
     !----------------------------------------------------------------------------
     ! Call ionosphere routines for extended model if mode is set to ionosphere
     !----------------------------------------------------------------------------
+    write(iulog,*) 'ZZZ Checking to see if ionosphere module is active! ZZZ'
     if( waccmx_is('ionosphere') ) then
+       write(iulog,*) 'ZZZ Yes, chemistry module is active! ZZZ'
        call ionos_intr(state, ptend, pbuf, ztodt)
     endif
 
@@ -2089,6 +2091,8 @@ subroutine tphysbc (ztodt,               &
        snow_sed(:ncol) = snow_sed(:ncol) + snow_sed_carma(:ncol)
     end if
 
+    write(iulog,*) 'VVV Hey now, does aerosol scheme get used?? VVV'
+
     if ( .not. deep_scheme_does_scav_trans() ) then
 
        !===================================================
@@ -2101,6 +2105,7 @@ subroutine tphysbc (ztodt,               &
        !===================================================
 
        call t_startf('bc_aerosols')
+       write(iulog,*) 'VVV Yes, aerosol scheme does get used... VVV'
        call aerosol_wet_intr (state, ptend, ztodt, pbuf,  cam_out, dlf)
        call physics_update(state, ptend, ztodt, tend)
 

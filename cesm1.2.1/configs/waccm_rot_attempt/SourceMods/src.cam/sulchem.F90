@@ -909,6 +909,7 @@ contains
 !##############################################################################
 
    subroutine coszen( calday, dodiavg, clat, clon, ncol, coszrs )
+     write(iulog,*) 'VVV coszen function in sulchem is being called! VVV'
 
       !-----------------------------------------------------------------------
       ! Purpose:
@@ -1105,6 +1106,7 @@ contains
 !##############################################################################
 
    subroutine dicor( calday, clat, ncol, corr )
+     write(iulog,*) 'VVV dicor function in sulchem is being called! VVV'
 
       !-----------------------------------------------------------------------
       ! Purpose:

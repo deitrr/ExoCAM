@@ -13,7 +13,6 @@ module mo_gas_phase_chemdr
   use spmd_utils,       only : iam
   use phys_control,     only : phys_getopts
   use carma_flags_mod,  only : carma_do_hetchem
-  use cam_logfile,    only : iulog                        ! Output unit for run.out file
 
 #ifdef MODAL_AERO
   use modal_aero_data,  only : ntot_amode
@@ -526,8 +525,6 @@ contains
     !            then cast back to angle (radians)
     !-----------------------------------------------------------------------
     !call zenith( calday, rlats, rlons, zen_angle, ncol )
-    write(iulog,*) 'XXXc zenith calc inside gas_phase_chemdr XXXc'
-
     call get_curr_calday_rotation(frac_day, day_in_year)
     call zenith_rotation(frac_day, calday, rlats, rlons, zen_angle, ncol)
     zen_angle(:) = acos( zen_angle(:) )

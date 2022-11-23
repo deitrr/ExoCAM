@@ -118,8 +118,8 @@ module exoplanet_mod
   real(r8), public, parameter :: exo_h2bar = 0.0_r8                ! H2 inventory (bar)
   real(r8), public, parameter :: exo_co2bar = 0.0004_r8               ! CO2 inventory (bar)
   real(r8), public, parameter :: exo_ch4bar = 1.7e-6_r8               ! CH4 inventory (bar)
-  real(r8), public, parameter :: exo_pstd = (exo_n2bar + exo_h2bar + exo_co2bar + exo_ch4bar)*1.0e5  ! total pressure (Pascals)
-
+  !real(r8), public, parameter :: exo_pstd = (exo_n2bar + exo_h2bar + exo_co2bar + exo_ch4bar)*1.0e5  ! total pressure (Pascals)
+  real(r8), public, parameter :: exo_pstd = 101325.0_R8
 
   !! ============== OCEAN ALBEDO CONSTANTS ============== !!
   real(r8), public, parameter :: exo_albdif = 0.06 ! 60 deg reference albedo, diffuse (default = 0.06)
@@ -155,8 +155,9 @@ module exoplanet_mod
   real(r8), public, parameter :: exo_co2vmr = exo_co2bar / (exo_pstd/1.0e5)
   real(r8), public, parameter :: exo_ch4vmr = exo_ch4bar / (exo_pstd/1.0e5)
 
-  real(r8), public, parameter :: &   ! molecular weight of dry air
-            exo_mwdair = exo_n2vmr*mwn2 + exo_h2vmr*mwh2 + exo_co2vmr*mwco2 + exo_ch4vmr*mwch4
+  !real(r8), public, parameter :: &   ! molecular weight of dry air
+  !          exo_mwdair = exo_n2vmr*mwn2 + exo_h2vmr*mwh2 + exo_co2vmr*mwco2 + exo_ch4vmr*mwch4
+  real(r8), public, parameter :: exo_mwdair = 28.966_R8
 
   !! dry mass mixing ratios
   real(r8), public, parameter :: exo_n2mmr = exo_n2vmr * mwn2/exo_mwdair
@@ -164,7 +165,8 @@ module exoplanet_mod
   real(r8), public, parameter :: exo_co2mmr = exo_co2vmr * mwco2/exo_mwdair
   real(r8), public, parameter :: exo_ch4mmr = exo_ch4vmr * mwch4/exo_mwdair
 
-  real(r8), public, parameter :: &   ! specific heat of dry, air J/kg/K
-            exo_cpdair = exo_n2mmr*cpn2 + exo_h2mmr*cph2 + exo_co2mmr*cpco2 + exo_ch4mmr*cpch4
+  !real(r8), public, parameter :: &   ! specific heat of dry, air J/kg/K
+  !          exo_cpdair = exo_n2mmr*cpn2 + exo_h2mmr*cph2 + exo_co2mmr*cpco2 + exo_ch4mmr*cpch4
+  real(r8), publix, parameter :: exo_cpdair = 1.00464e3_R8
 
 end module

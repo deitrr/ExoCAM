@@ -100,11 +100,12 @@ module exoplanet_mod
   real(r8), public, parameter :: exo_eccen = 0.0_r8   ! eccentricity
   real(r8), public, parameter :: exo_obliq = 0.0_r8   ! obliquity [degrees]
   real(r8), public, parameter :: exo_mvelp = 0.0_r8   ! vernal equinox
-
+  !!RD: can be used but currently not
 
   !! ============== STELLAR OPTIONS ============== !!
   !! SOLAR CONSTANT
-  real(r8), public, parameter :: exo_scon = 1360._r8         ! Solar constant (W m-2)
+  !real(r8), public, parameter :: exo_scon = 1360._r8         ! Solar constant (W m-2)
+  !!RD: not used in this configuration
 
   ! SOLAR SPECTRAL FILE
   !! Make sure solar file matches spectral intervals for selected RT configuration !!

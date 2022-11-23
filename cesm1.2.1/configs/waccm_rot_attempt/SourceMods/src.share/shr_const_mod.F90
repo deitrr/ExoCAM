@@ -16,7 +16,7 @@ MODULE shr_const_mod
    public
 
    ! constant set by exoplanet_mod.F90 module parameters
-   real(R8),parameter :: SHR_CONST_SCON    = exo_scon      ! solar constant ! W m-2
+   !real(R8),parameter :: SHR_CONST_SCON    = exo_scon      ! solar constant ! W m-2
    real(R8),parameter :: SHR_CONST_MWDAIR  = exo_mwdair    ! molecular weight dry air ~ kg/kmole
    real(R8),parameter :: SHR_CONST_CPDAIR  = exo_cpdair    ! specific heat of dry air   ~ J/kg/K
    real(R8),parameter :: SHR_CONST_PSTD = exo_pstd         ! standard pressure
@@ -27,7 +27,7 @@ MODULE shr_const_mod
    real(R8),parameter :: SHR_CONST_PI      = 3.14159265358979323846_R8  ! pi
    real(R8),parameter :: SHR_CONST_CDAY    = 86400.0_R8      ! sec in calendar day ~ sec, [DO NOT CHANGE]
    real(R8),parameter :: SHR_CONST_OMEGA   = 2.0_R8*SHR_CONST_PI/SHR_CONST_SDAY ! earth rot ~ rad/sec
-   real(R8),parameter :: SHR_CONST_DLAPSE = SHR_CONST_G/SHR_CONST_CPDAIR 
+   real(R8),parameter :: SHR_CONST_DLAPSE = SHR_CONST_G/SHR_CONST_CPDAIR
 
    real(R8),parameter :: SHR_CONST_STEBOL  = 5.67e-8_R8      ! Stefan-Boltzmann constant ~ W/m^2/K^4
    real(R8),parameter :: SHR_CONST_BOLTZ   = 1.38065e-23_R8  ! Boltzmann's constant ~ J/K/molecule
@@ -40,9 +40,9 @@ MODULE shr_const_mod
    real(R8),parameter :: SHR_CONST_LOSCHMIDT = 2.6867774e25          ! Loschmidt number ~# m^-3
    real(R8),parameter :: SHR_CONST_KARMAN  = 0.4_R8          ! Von Karman constant
    real(R8),parameter :: SHR_CONST_PDB     = 0.0112372_R8    ! ratio of 13C/12C in Pee Dee Belemnite (C isotope standard)
- 
+
    real(R8),parameter :: SHR_CONST_TKTRIP  = 273.16_R8       ! triple point of fresh water        ~ K
-   real(R8),parameter :: SHR_CONST_TKFRZ   = 273.15_R8       ! freezing T of fresh water          ~ K 
+   real(R8),parameter :: SHR_CONST_TKFRZ   = 273.15_R8       ! freezing T of fresh water          ~ K
    real(R8),parameter :: SHR_CONST_TKFRZSW = SHR_CONST_TKFRZ - 1.8_R8 ! freezing T of salt water  ~ K
 
    real(R8),parameter :: SHR_CONST_RHODAIR = &               ! density of dry air at STP  ~ kg/m^3

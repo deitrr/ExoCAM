@@ -168,6 +168,6 @@ module exoplanet_mod
 
   !real(r8), public, parameter :: &   ! specific heat of dry, air J/kg/K
   !          exo_cpdair = exo_n2mmr*cpn2 + exo_h2mmr*cph2 + exo_co2mmr*cpco2 + exo_ch4mmr*cpch4
-  real(r8), publix, parameter :: exo_cpdair = 1.00464e3_R8
+  real(r8), public, parameter :: exo_cpdair = 1.00464e3_R8
 
 end module

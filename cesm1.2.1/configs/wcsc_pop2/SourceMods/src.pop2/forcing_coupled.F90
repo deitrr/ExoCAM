@@ -15,7 +15,7 @@
 !  SVN:$Id: forcing_coupled.F90 26603 2011-01-28 23:09:02Z njn01 $
 !
 ! !USES:
- 
+
    use POP_KindsMod
    use POP_ErrorMod
    use POP_CommMod
@@ -51,7 +51,7 @@
    use named_field_mod, only: named_field_register, named_field_get_index, &
        named_field_set, named_field_get
    use forcing_fields
-      
+
    implicit none
    save
 
@@ -127,7 +127,7 @@
       QSW_COSZ_WGHT,      & ! weights
       QSW_COSZ_WGHT_NORM    ! normalization for QSW_COSZ_WGHT
 
- 
+
    integer (int_kind), private ::   &
       cpl_ts                ! flag id for coupled_ts flag
 
@@ -140,13 +140,13 @@
 !***********************************************************************
 
 !BOP
-! !IROUTINE: pop_init_coupled 
+! !IROUTINE: pop_init_coupled
 ! !INTERFACE:
 
  subroutine pop_init_coupled
 
 ! !DESCRIPTION:
-!  This routine sets up everything necessary for coupling with CCSM4. 
+!  This routine sets up everything necessary for coupling with CCSM4.
 !
 ! !REVISION HISTORY:
 !  same as module
@@ -199,12 +199,12 @@
 !  coupling frequency
 !
 !-----------------------------------------------------------------------
-      
+
    coupled_freq_opt  = 'never'
    coupled_freq_iopt = freq_opt_never
    coupled_freq      = 100000
    qsw_distrb_opt    = 'const'
-      
+
    if (my_task == master_task) then
       open (nml_in, file=nml_filename, status='old',iostat=nml_error)
       if (nml_error /= 0) then
@@ -296,7 +296,7 @@
         end select
 
       endif
-            
+
       call broadcast_scalar(coupled_freq_iopt, master_task)
       call broadcast_scalar(coupled_freq     , master_task)
       call broadcast_scalar(qsw_distrb_iopt  , master_task)
@@ -348,18 +348,18 @@
 !-----------------------------------------------------------------------
 
       allocate ( qsw_12hr_factor(nsteps_per_interval))
-      
+
       qsw_12hr_factor = c1
       if ( qsw_distrb_iopt == qsw_distrb_iopt_12hr ) then
 
 !       mimic a day
 
-        time_for_forcing = c0 
+        time_for_forcing = c0
         count_forcing    =  1
         sum_forcing      = c0
 
         do n=1,nsteps_per_interval
-          frac_day_forcing = time_for_forcing / seconds_in_day 
+          frac_day_forcing = time_for_forcing / seconds_in_day
           cycle_function = cos( pi * ( c2 * frac_day_forcing - c1 ) )
           qsw_12hr_factor(n) = c2 * (      cycle_function      &
                                      + abs(cycle_function) )   &
@@ -503,7 +503,7 @@
 !  initialize timer for computing cosz
 !
 !-----------------------------------------------------------------------
-      
+
    if ( qsw_distrb_iopt == qsw_distrb_iopt_cosz ) then
       call get_timer (timer_compute_cosz, 'COMPUTE_COSZ', nblocks_clinic, &
                                           distrb_clinic%nprocs)
@@ -647,7 +647,7 @@
      write(stdout,*) message
      number_of_fatal_errors = number_of_fatal_errors + 1
    endif
-   
+
    if (number_of_fatal_errors /= 0)  &
       call exit_POP(sigAbort,'subroutine pop_init_partially_coupled')
 
@@ -671,9 +671,9 @@
 
 ! !DESCRIPTION:
 !  This routine is called immediately following the receipt of fluxes
-!  from the coupler. It combines fluxes received from the coupler into 
-!  the STF array and converts from W/m**2 into model units. It also 
-!  balances salt/freshwater in marginal seas and sets SHF_QSW_RAW 
+!  from the coupler. It combines fluxes received from the coupler into
+!  the STF array and converts from W/m**2 into model units. It also
+!  balances salt/freshwater in marginal seas and sets SHF_QSW_RAW
 !  and SHF_COMP. Compute QSW_COSZ_WGHT_NORM if needed.
 !
 ! !REVISION HISTORY:
@@ -682,7 +682,7 @@
 
 !EOP
 !BOC
-     
+
 !-----------------------------------------------------------------------
 !
 !  local variables
@@ -696,7 +696,7 @@
 
    real (r8), dimension(nx_block,ny_block,max_blocks_clinic) ::   &
       WORK1, WORK2        ! local work space
- 
+
 !-----------------------------------------------------------------------
 !
 !  combine heat flux components into STF array and convert from W/m**2
@@ -716,10 +716,10 @@
                            + SENH_F(:,:,iblock) + LWUP_F(:,:,iblock)        &
                            + LWDN_F(:,:,iblock) + MELTH_F(:,:,iblock)       &
                            -(SNOW_F(:,:,iblock)+IOFF_F(:,:,iblock)) * latent_heat_fusion_mks)*  &
-                             RCALCT(:,:,iblock)*hflux_factor 
+                             RCALCT(:,:,iblock)*hflux_factor
    enddo
    !$OMP END PARALLEL DO
-                                        
+
 !-----------------------------------------------------------------------
 !
 !  combine freshwater flux components
@@ -803,23 +803,23 @@
         STF(:,:,2,iblock) = RCALCT(:,:,iblock)*(  &
                      (PREC_F(:,:,iblock)+EVAP_F(:,:,iblock)+  &
                       MELT_F(:,:,iblock)+ROFF_F(:,:,iblock)+IOFF_F(:,:,iblock))*salinity_factor   &
-                    + SALT_F(:,:,iblock)*sflux_factor)  
+                    + SALT_F(:,:,iblock)*sflux_factor)
       enddo
       !$OMP END PARALLEL DO
- 
+
 !-----------------------------------------------------------------------
 !
 !  balance salt/freshwater in marginal seas
 !
 !-----------------------------------------------------------------------
- 
+
       if  (lms_balance .and. sfwf_formulation /= 'partially-coupled' ) then
        call ms_balancing (STF(:,:,2,:),EVAP_F, PREC_F, MELT_F,ROFF_F,IOFF_F,   &
                           SALT_F, QFLUX, 'salt')
       endif
- 
+
    endif
- 
+
 
    !$OMP PARALLEL DO PRIVATE(iblock,n)
    do iblock = 1, nblocks_clinic
@@ -827,14 +827,14 @@
       SHF_QSW_RAW(:,:,iblock) = SHF_QSW(:,:,iblock)
 
       if ( shf_formulation == 'partially-coupled' ) then
-        SHF_COMP(:,:,iblock,shf_comp_cpl) = STF(:,:,1,iblock) 
+        SHF_COMP(:,:,iblock,shf_comp_cpl) = STF(:,:,1,iblock)
         if ( .not. lms_balance ) then
           SHF_COMP(:,:,iblock,shf_comp_cpl) =   &
                   SHF_COMP(:,:,iblock,shf_comp_cpl) * MASK_SR(:,:,iblock)
           SHF_QSW(:,:,iblock) = SHF_QSW(:,:,iblock) * MASK_SR(:,:,iblock)
         endif
       endif
- 
+
       SHF_COMP(:,:,iblock,shf_comp_qsw) = SHF_QSW(:,:,iblock)
 
       if ( sfwf_formulation == 'partially-coupled' ) then
@@ -861,7 +861,7 @@
         endif
 
       endif
- 
+
       if ( luse_cpl_ifrac ) then
         OCN_WGT(:,:,iblock) = (c1-IFRAC(:,:,iblock)) * RCALCT(:,:,iblock)
       endif
@@ -886,7 +886,7 @@
              cosz_day = tday00_interval_beg + interval_cum_dayfrac(nn-1) &
                 - interval_cum_dayfrac(nsteps_per_interval)
 
-             call compute_cosz(cosz_day, iblock, QSW_COSZ_WGHT(:,:,iblock))
+             call compute_cosz_rotation(cosz_day, iblock, QSW_COSZ_WGHT(:,:,iblock))
 
              if (interval_avg_ts(nn)) then
                 QSW_COSZ_WGHT_NORM(:,:,iblock) = &
@@ -908,7 +908,7 @@
        enddo
        !$OMP END PARALLEL DO
     endif
- 
+
 #endif
 !-----------------------------------------------------------------------
 !EOC
@@ -933,7 +933,7 @@
 !  same as module
 
 ! !INPUT/OUTPUT PARAMETERS:
- 
+
    real (r8), dimension(nx_block,ny_block,nt,max_blocks_clinic), &
       intent(inout) :: &
       STF,             &! surface tracer fluxes at current timestep
@@ -1011,17 +1011,17 @@
          enddo
          !$OMP END PARALLEL DO
 
-       else     
+       else
 
          !$OMP PARALLEL DO PRIVATE(iblock)
          do iblock=1,nblocks_clinic
            STF(:,:,2,iblock) =  SFWF_COMP(:,:,iblock,sfwf_comp_wrest)  &
                               + SFWF_COMP(:,:,iblock,sfwf_comp_srest)  &
                               + SFWF_COMP(:,:,iblock,sfwf_comp_cpl)    &
-                              + SFWF_COMP(:,:,iblock,sfwf_comp_flxio) 
+                              + SFWF_COMP(:,:,iblock,sfwf_comp_flxio)
          enddo
          !$OMP END PARALLEL DO
- 
+
        endif
      endif
    endif
@@ -1033,8 +1033,8 @@
 !EOC
 
  end subroutine set_combined_forcing
- 
- 
+
+
 !***********************************************************************
 !BOP
 ! !IROUTINE: tavg_coupled_forcing
@@ -1118,7 +1118,7 @@
 
 ! !OUTPUT PARAMETERS:
 
-   integer (POP_i4), intent(out) :: errorCode  
+   integer (POP_i4), intent(out) :: errorCode
 
 !EOP
 !BOC
@@ -1302,7 +1302,7 @@
 
  end subroutine update_ghost_cells_coupler_fluxes
 
- 
+
 !***********************************************************************
 !BOP
 ! !IROUTINE: rotate_wind_stress
@@ -1331,8 +1331,8 @@
 !  local variables
 !
 !-----------------------------------------------------------------------
-   integer (kind=int_kind) :: iblock  
-   integer (POP_i4)        :: errorCode  
+   integer (kind=int_kind) :: iblock
+   integer (POP_i4)        :: errorCode
 
 !-----------------------------------------------------------------------
 !
@@ -1449,9 +1449,83 @@
 
  end subroutine compute_cosz
 
+ subroutine compute_cosz_rotation(tday, iblock, COSZ)
+
+! !DESCRIPTION:
+!  This subroutine computes cos of the solar zenith angle.
+!  Negative values are set to zero.
+!
+! !REVISION HISTORY:
+!  Modded by R. Deitrick for varying rotation rate following example of
+!  Eric Wolf's ExoCAM mods.
+!
+! !USES:
+
+   use shr_orb_mod, only: shr_orb_decl, shr_orb_cosz
+   use exoplanet_mod, only: exo_ndays
+
+! !INPUT PARAMETERS:
+
+   real (r8), intent(in) :: tday
+   integer (int_kind), intent(in) :: iblock
+   real(r8), intent(in) :: frac_day
+
+! !OUTPUT PARAMETERS:
+
+   real (r8), dimension(:,:), intent(out) :: COSZ
+
+!EOP
+!BOC
+!-----------------------------------------------------------------------
+!
+!  local variables
+!
+!-----------------------------------------------------------------------
+
+   integer (int_kind) ::   &
+      i, j            ! loop indices
+
+   real (r8) :: &
+      calday,       & ! Calendar day, including fraction
+      delta,        & ! Solar declination angle in rad
+      eccf,         & ! Earth-sun distance factor (ie. (1/r)**2)
+      day_earth,    & ! Earth day since start of simulation
+      frac_day      & ! time corrected for planet's rotation
+
+!-----------------------------------------------------------------------
+
+   call timer_start(timer_compute_cosz, block_id=iblock)
+
+!  shr_orb code assumes Jan 1 = calday 1, unlike Jan 1 = tday 0
+   calday = tday + c1
+
+!  borrowing from ExoCAM time_manager src.cam mod
+   day_earth = calday + 365*tyear00 - 1
+   frac_day = day_earth/exo_ndays - FLOOR(day_earth / exo_ndays)
+
+   call shr_orb_decl(calday, orb_eccen, orb_mvelpp, orb_lambm0, &
+                     orb_obliqr, delta, eccf)
+
+   do j = 1, ny_block
+      do i = 1, nx_block
+         !COSZ(i,j) = shr_orb_cosz(calday, TLAT(i,j,iblock), &
+         !                         TLON(i,j,iblock), delta)
+         COSZ(i,j) = shr_orb_cosz(frac_day, TLAT(i,j,iblock), &
+                                  TLON(i,j,iblock), delta)
+         COSZ(i,j) = max(c0, COSZ(i,j))
+      enddo
+   enddo
+
+   call timer_stop(timer_compute_cosz, block_id=iblock)
+
+!-----------------------------------------------------------------------
+!EOC
+
+end subroutine compute_cosz_rotation
+
+
 !***********************************************************************
 
  end module forcing_coupled
 
 !|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-

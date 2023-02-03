@@ -1468,7 +1468,6 @@
 
    real (r8), intent(in) :: tday
    integer (int_kind), intent(in) :: iblock
-   real(r8), intent(in) :: frac_day
 
 ! !OUTPUT PARAMETERS:
 
@@ -1490,7 +1489,7 @@
       delta,        & ! Solar declination angle in rad
       eccf,         & ! Earth-sun distance factor (ie. (1/r)**2)
       day_earth,    & ! Earth day since start of simulation
-      frac_day      & ! time corrected for planet's rotation
+      frac_day        ! time corrected for planet's rotation
 
 !-----------------------------------------------------------------------
 
